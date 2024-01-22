@@ -74,7 +74,6 @@ layout_mode = 2
 unique_name_in_owner = true
 layout_mode = 2
 theme = ExtResource("2_7eqbs")
-bbcode_enabled = true
 text = "exodrifter: Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Urna duis convallis convallis tellus id interdum velit. Vulputate enim nulla aliquet porttitor lacus luctus. Malesuada bibendum arcu vitae elementum."
 fit_content = true
 visible_characters_behavior = 1

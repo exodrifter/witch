@@ -1,3 +1,4 @@
+class_name Message
 extends RichTextLabel
 
 var data: Dictionary = {}:
@@ -70,10 +71,12 @@ func setup() -> void:
 
 	# Show the user
 	push_color(user_color)
-	append_text(user_name)
-	if not is_action:
+	append_bbcode(user_name)
+	if is_action:
+		append_bbcode(" ")
+	else:
+		append_bbcode(": ")
 		pop()
-	append_text(" ")
 
 	# Show the message
 	var missing_emotes = false
@@ -81,7 +84,7 @@ func setup() -> void:
 	for emote in data["emotes"]:
 		var start = emote["char_range"]["start"]
 		var end = emote["char_range"]["end"]
-		append_text(message_text.substr(last, start - last))
+		append_bbcode(message_text.substr(last, start - last))
 
 		# Add the emote if it is loaded
 		var tex = TwitchImageCache.get_emote(
@@ -92,11 +95,11 @@ func setup() -> void:
 		if tex != null:
 			add_image(tex, 0, 20)
 		else:
-			append_text(message_text.substr(start, end - start))
+			append_bbcode(message_text.substr(start, end - start))
 			missing_emotes = true
 
 		last = emote["char_range"]["end"]
-	append_text(message_text.substr(last, message_text.length() - last))
+	append_bbcode(message_text.substr(last, message_text.length() - last))
 
 	if is_action:
 		pop() # End color
@@ -107,3 +110,33 @@ func setup() -> void:
 		TwitchImageCache.emote_loaded.connect(setup)
 	if not missing_emotes and TwitchImageCache.emote_loaded.is_connected(setup):
 		TwitchImageCache.emote_loaded.disconnect(setup)
+
+# Like `append_text`, but parses both open AND close bbcode tags instead of just
+# open tags.
+func append_bbcode(str: String) -> void:
+	var arr = str.split("[", true, 1)
+	append_text(arr[0])
+	if arr.size() > 1:
+		parse_bbcode_tag(arr[1])
+
+func parse_bbcode_tag(str: String) -> void:
+	var arr = str.split("]", true, 1)
+	match arr[0]:
+		"b":
+			push_bold()
+		"/b":
+			pop()
+		"i":
+			push_italics()
+		"/i":
+			pop()
+		"u":
+			push_underline()
+		"/u":
+			pop()
+		"s":
+			push_strikethrough()
+		"/s":
+			pop()
+	if arr.size() > 1:
+		append_bbcode(arr[1])
