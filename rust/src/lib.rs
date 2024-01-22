@@ -1,14 +1,18 @@
-pub fn add(left: usize, right: usize) -> usize {
-    left + right
-}
+use godot::prelude::*;
 
-#[cfg(test)]
-mod tests {
-    use super::*;
+struct ExowitchRust;
 
-    #[test]
-    fn it_works() {
-        let result = add(2, 2);
-        assert_eq!(result, 4);
+#[gdextension]
+unsafe impl ExtensionLibrary for ExowitchRust {}
+
+#[derive(GodotClass)]
+#[class(init)]
+struct Exowitch;
+
+#[godot_api]
+impl Exowitch {
+    #[func]
+    pub fn test() {
+        godot_print!("Hello, world!"); // Prints to the Godot console
     }
 }
