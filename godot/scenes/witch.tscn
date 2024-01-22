@@ -1,4 +1,4 @@
-[gd_scene load_steps=17 format=3 uid="uid://crw6ljthk4iuc"]
+[gd_scene load_steps=19 format=3 uid="uid://crw6ljthk4iuc"]
 
 [ext_resource type="Script" path="res://scenes/witch.gd" id="1_8stk4"]
 [ext_resource type="AudioStream" uid="uid://b5uhsrs22hev3" path="res://audio/notif.wav" id="2_x2h85"]
@@ -7,7 +7,6 @@
 [ext_resource type="Theme" uid="uid://omkl8qh717w8" path="res://default_theme.tres" id="5_omci2"]
 [ext_resource type="Script" path="res://scenes/message.gd" id="6_ladj6"]
 [ext_resource type="Texture2D" uid="uid://bap6j18harldy" path="res://textures/bits.png" id="7_fhvrn"]
-[ext_resource type="Script" path="res://scenes/auto_destruct.gd" id="8_yu3a2"]
 
 [sub_resource type="Gradient" id="Gradient_k2i4l"]
 colors = PackedColorArray(0, 0, 0, 1, 0, 0, 0, 1)
@@ -52,6 +51,29 @@ initial_velocity_max = 150.0
 gravity = Vector3(0, 150, 0)
 alpha_curve = SubResource("CurveTexture_51hbv")
 anim_offset_max = 1.0
+
+[sub_resource type="Curve" id="Curve_jovc6"]
+_data = [Vector2(0, 0), 0.0, 0.0, 0, 0, Vector2(0.103448, 1), 0.0, 0.0, 0, 0, Vector2(0.896552, 1), 0.0, 0.0, 0, 0, Vector2(1, 0), 0.0, 0.0, 0, 0]
+point_count = 4
+
+[sub_resource type="CurveTexture" id="CurveTexture_6yfnn"]
+curve = SubResource("Curve_jovc6")
+
+[sub_resource type="ParticleProcessMaterial" id="ParticleProcessMaterial_xgnj4"]
+lifetime_randomness = 0.2
+particle_flag_disable_z = true
+emission_shape = 3
+emission_box_extents = Vector3(600, 40, 1)
+direction = Vector3(0, 1, 0)
+spread = 0.0
+initial_velocity_min = -300.0
+initial_velocity_max = -300.0
+gravity = Vector3(0, 0, 0)
+alpha_curve = SubResource("CurveTexture_6yfnn")
+turbulence_enabled = true
+turbulence_noise_strength = 3.0
+turbulence_influence_min = 0.01
+turbulence_influence_max = 0.01
 
 [node name="Witch" type="Control"]
 layout_mode = 3
@@ -130,4 +152,13 @@ texture = ExtResource("7_fhvrn")
 lifetime = 3.0
 one_shot = true
 fixed_fps = 60
-script = ExtResource("8_yu3a2")
+
+[node name="EmoteParticles" type="GPUParticles2D" parent="."]
+unique_name_in_owner = true
+position = Vector2(640, 680)
+emitting = false
+amount = 1
+process_material = SubResource("ParticleProcessMaterial_xgnj4")
+lifetime = 4.0
+one_shot = true
+fixed_fps = 60

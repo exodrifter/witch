@@ -8,16 +8,19 @@ const DUPE_FLAGS := DUPLICATE_SIGNALS | DUPLICATE_GROUPS | DUPLICATE_SCRIPTS
 @onready var raid_player: SoundBankPlayer = %Raid
 
 @onready var bits_prefab: GPUParticles2D = %BitParticles
+@onready var emotes_prefab: GPUParticles2D = %EmoteParticles
 @onready var message_prefab: Message = %Message
 
-@onready var bits_container: Control = bits_prefab.get_parent()
-@onready var chat_container: Control = message_prefab.get_parent()
+@onready var bits_container: Node = bits_prefab.get_parent()
+@onready var emotes_container: Node = emotes_prefab.get_parent()
+@onready var chat_container: Node = message_prefab.get_parent()
 
 var irc := WitchIRC.new()
 
 func _ready():
 	# Setup prefabs
 	bits_container.remove_child(bits_prefab)
+	emotes_container.remove_child(emotes_prefab)
 	chat_container.remove_child(message_prefab)
 
 	irc.join("exodrifter_")
@@ -27,11 +30,11 @@ func _process(_delta):
 	for message in messages:
 		process_message(message)
 
-func process_message(message: Dictionary) -> void:
-	match message.type:
+func process_message(data: Dictionary) -> void:
+	match data.type:
 		"privmsg":
 			# Play the sound effect
-			match message.message_text:
+			match data.message_text:
 				"!listen":
 					listen_player.play()
 				"!raid":
@@ -39,20 +42,31 @@ func process_message(message: Dictionary) -> void:
 				_:
 					notif_player.play()
 
-			var message_control: Message = message_prefab.duplicate(DUPE_FLAGS)
-			message_control.data = message
-			chat_container.add_child(message_control)
-			chat_container.move_child(message_control, 0)
-			print(message)
+			var message: Message = message_prefab.duplicate(DUPE_FLAGS)
+			message.witch = self
+			message.data = data
+			chat_container.add_child(message)
+			chat_container.move_child(message, 0)
+			print(data)
 
-			process_bits(message_control.bits)
+			process_bits(message.bits)
 
 func process_bits(bits: int) -> void:
 	if bits <= 0:
 		return
 
-	var emitter = bits_prefab.duplicate(DUPE_FLAGS)
+	var emitter: GPUParticles2D = bits_prefab.duplicate(DUPE_FLAGS)
 	emitter.amount = bits
 	emitter.emitting = true
-	emitter.kill_switch = true
+	emitter.finished.connect(emitter.queue_free)
 	bits_container.add_child(emitter)
+
+func process_emote(emote: Texture2D) -> void:
+	if emote == null:
+		return
+
+	var emitter: GPUParticles2D = emotes_prefab.duplicate(DUPE_FLAGS)
+	emitter.texture = emote
+	emitter.emitting = true
+	emitter.finished.connect(emitter.queue_free)
+	emotes_container.add_child(emitter)

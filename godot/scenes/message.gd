@@ -1,6 +1,8 @@
 class_name Message
 extends RichTextLabel
 
+var witch: Witch = null
+var emitted_emotes: bool = false
 var data: Dictionary = {}:
 	set(value):
 		data = value
@@ -114,17 +116,26 @@ func setup() -> void:
 		TwitchImageCache.emote_loaded.connect(setup)
 	if not missing_emotes and TwitchImageCache.emote_loaded.is_connected(setup):
 		TwitchImageCache.emote_loaded.disconnect(setup)
+	if not missing_emotes and not emitted_emotes and witch != null:
+		for emote in data["emotes"]:
+			var tex = TwitchImageCache.get_emote(
+				emote["id"],
+				TwitchImageCache.ThemeMode.Dark,
+				TwitchImageCache.EmoteSize.Small
+			)
+			witch.process_emote(tex)
+			emitted_emotes = true
 
 # Like `append_text`, but parses both open AND close bbcode tags instead of just
 # open tags.
-func append_bbcode(str: String) -> void:
-	var arr = str.split("[", true, 1)
+func append_bbcode(s: String) -> void:
+	var arr = s.split("[", true, 1)
 	append_text(arr[0])
 	if arr.size() > 1:
 		parse_bbcode_tag(arr[1])
 
-func parse_bbcode_tag(str: String) -> void:
-	var arr = str.split("]", true, 1)
+func parse_bbcode_tag(s: String) -> void:
+	var arr = s.split("]", true, 1)
 	match arr[0]:
 		"b":
 			push_bold()
