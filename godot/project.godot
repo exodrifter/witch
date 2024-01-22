@@ -22,6 +22,7 @@ TwitchImageCache="*res://code/twitch_image_cache.gd"
 
 window/size/viewport_width=1280
 window/size/viewport_height=720
+window/per_pixel_transparency/allowed=true
 
 [file_customization]
 
@@ -31,3 +32,7 @@ folder_colors={
 "res://gdext/": "gray",
 "res://scenes/": "purple"
 }
+
+[rendering]
+
+environment/defaults/default_clear_color=Color(0, 0, 0, 0)
