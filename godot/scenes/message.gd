@@ -48,15 +48,19 @@ var message_text: String:
 		else:
 			return ""
 
+## The number of bits cheered with this message.
+var bits: int:
+	get:
+		if data.has("bits") and data["bits"] != null:
+			return data["bits"]
+		else:
+			return 0
+
 func _ready() -> void:
 	setup()
 
 func _process(_delta) -> void:
-	if name == "Message6":
-		print(global_position.y)
-
 	if global_position.y > 720:
-		print("deleting ", name)
 		queue_free()
 
 func setup() -> void:
