@@ -1,18 +1,7 @@
 use godot::prelude::*;
+pub mod witch_irc;
 
 struct ExowitchRust;
 
 #[gdextension]
 unsafe impl ExtensionLibrary for ExowitchRust {}
-
-#[derive(GodotClass)]
-#[class(init)]
-struct Exowitch;
-
-#[godot_api]
-impl Exowitch {
-    #[func]
-    pub fn test() {
-        godot_print!("Hello, world!"); // Prints to the Godot console
-    }
-}

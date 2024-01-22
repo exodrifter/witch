@@ -8,3 +8,5 @@ crate-type = ["cdylib"]
 
 [dependencies]
 godot = { git = "https://github.com/godot-rust/gdext", branch = "master" }
+tokio = { version = "1", features = ["full"] }
+twitch-irc = "5.0.1"
