@@ -24,4 +24,5 @@ func process_message(message: Dictionary):
 			var message_control = message_prefab.duplicate(DUPE_FLAGS)
 			message_control.data = message
 			chat_container.add_child(message_control)
+			chat_container.move_child(message_control, 0)
 			print(message)

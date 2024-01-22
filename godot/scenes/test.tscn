@@ -9,6 +9,7 @@ colors = PackedColorArray(0, 0, 0, 1, 0, 0, 0, 1)
 
 [sub_resource type="GradientTexture1D" id="GradientTexture1D_udrwr"]
 gradient = SubResource("Gradient_k2i4l")
+width = 200
 
 [node name="Test" type="Control"]
 layout_mode = 3
@@ -27,7 +28,6 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 offset_left = -200.0
 grow_horizontal = 0
-grow_vertical = 2
 
 [node name="Background" type="TextureRect" parent="Chatlog"]
 layout_mode = 2
@@ -48,6 +48,7 @@ unique_name_in_owner = true
 layout_mode = 2
 theme = ExtResource("2_7eqbs")
 bbcode_enabled = true
-text = "exodrifter: Hello world!"
+text = "exodrifter: Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Urna duis convallis convallis tellus id interdum velit. Vulputate enim nulla aliquet porttitor lacus luctus. Malesuada bibendum arcu vitae elementum."
 fit_content = true
+visible_characters_behavior = 1
 script = ExtResource("3_kwdi3")

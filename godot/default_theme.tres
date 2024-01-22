@@ -1,6 +1,13 @@
-[gd_resource type="Theme" load_steps=2 format=3 uid="uid://omkl8qh717w8"]
+[gd_resource type="Theme" load_steps=5 format=3 uid="uid://omkl8qh717w8"]
 
+[ext_resource type="FontFile" uid="uid://k8arxwapreep" path="res://fonts/FantasqueSansMono-Bold.otf" id="1_0arlh"]
 [ext_resource type="FontFile" uid="uid://ut5knjklrfq0" path="res://fonts/FantasqueSansMono-Regular.otf" id="1_cst67"]
+[ext_resource type="FontFile" uid="uid://bph76bk020tqf" path="res://fonts/FantasqueSansMono-BoldItalic.otf" id="2_2dxbd"]
+[ext_resource type="FontFile" uid="uid://ccjnd7daxftqn" path="res://fonts/FantasqueSansMono-Italic.otf" id="3_va7h3"]
 
 [resource]
 default_font = ExtResource("1_cst67")
+RichTextLabel/fonts/bold_font = ExtResource("1_0arlh")
+RichTextLabel/fonts/bold_italics_font = ExtResource("2_2dxbd")
+RichTextLabel/fonts/italics_font = ExtResource("3_va7h3")
+RichTextLabel/fonts/normal_font = ExtResource("1_cst67")
