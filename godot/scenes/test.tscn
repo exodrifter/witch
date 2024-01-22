@@ -1,6 +1,53 @@
-[gd_scene load_steps=2 format=3 uid="uid://crw6ljthk4iuc"]
+[gd_scene load_steps=6 format=3 uid="uid://crw6ljthk4iuc"]
 
 [ext_resource type="Script" path="res://scenes/test.gd" id="1_8hy0a"]
+[ext_resource type="Theme" uid="uid://omkl8qh717w8" path="res://default_theme.tres" id="2_7eqbs"]
+[ext_resource type="Script" path="res://scenes/message.gd" id="3_kwdi3"]
 
-[node name="Test" type="Node"]
+[sub_resource type="Gradient" id="Gradient_k2i4l"]
+colors = PackedColorArray(0, 0, 0, 1, 0, 0, 0, 1)
+
+[sub_resource type="GradientTexture1D" id="GradientTexture1D_udrwr"]
+gradient = SubResource("Gradient_k2i4l")
+
+[node name="Test" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
 script = ExtResource("1_8hy0a")
+
+[node name="Chatlog" type="MarginContainer" parent="."]
+layout_mode = 1
+anchors_preset = -1
+anchor_left = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -200.0
+grow_horizontal = 0
+grow_vertical = 2
+
+[node name="Background" type="TextureRect" parent="Chatlog"]
+layout_mode = 2
+texture = SubResource("GradientTexture1D_udrwr")
+
+[node name="MarginContainer" type="MarginContainer" parent="Chatlog"]
+layout_mode = 2
+theme_override_constants/margin_left = 5
+theme_override_constants/margin_top = 5
+theme_override_constants/margin_right = 5
+theme_override_constants/margin_bottom = 5
+
+[node name="VBoxContainer" type="VBoxContainer" parent="Chatlog/MarginContainer"]
+layout_mode = 2
+
+[node name="Message" type="RichTextLabel" parent="Chatlog/MarginContainer/VBoxContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+theme = ExtResource("2_7eqbs")
+bbcode_enabled = true
+text = "exodrifter: Hello world!"
+fit_content = true
+script = ExtResource("3_kwdi3")

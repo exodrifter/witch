@@ -14,10 +14,16 @@ config/name="witch"
 config/features=PackedStringArray("4.2", "Forward Plus")
 config/icon="res://icon.svg"
 
+[display]
+
+window/size/viewport_width=1280
+window/size/viewport_height=720
+
 [file_customization]
 
 folder_colors={
 "res://code/": "gray",
+"res://fonts/": "green",
 "res://gdext/": "gray",
 "res://scenes/": "purple"
 }
