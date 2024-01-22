@@ -1,8 +1,11 @@
-[gd_scene load_steps=6 format=3 uid="uid://crw6ljthk4iuc"]
+[gd_scene load_steps=9 format=3 uid="uid://crw6ljthk4iuc"]
 
 [ext_resource type="Script" path="res://scenes/test.gd" id="1_8hy0a"]
 [ext_resource type="Theme" uid="uid://omkl8qh717w8" path="res://default_theme.tres" id="2_7eqbs"]
+[ext_resource type="AudioStream" uid="uid://b5uhsrs22hev3" path="res://audio/notif.wav" id="2_cxlri"]
 [ext_resource type="Script" path="res://scenes/message.gd" id="3_kwdi3"]
+[ext_resource type="Resource" uid="uid://dqlodn3im2imi" path="res://audio/raid.tres" id="4_fgdw5"]
+[ext_resource type="Script" path="res://code/sound_bank_player.gd" id="4_l3pe0"]
 
 [sub_resource type="Gradient" id="Gradient_k2i4l"]
 colors = PackedColorArray(0, 0, 0, 1, 0, 0, 0, 1)
@@ -11,7 +14,7 @@ colors = PackedColorArray(0, 0, 0, 1, 0, 0, 0, 1)
 gradient = SubResource("Gradient_k2i4l")
 width = 200
 
-[node name="Test" type="Control"]
+[node name="Witch" type="Control"]
 layout_mode = 3
 anchors_preset = 15
 anchor_right = 1.0
@@ -19,6 +22,30 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 script = ExtResource("1_8hy0a")
+
+[node name="Audio" type="Node" parent="."]
+
+[node name="Notif" type="AudioStreamPlayer" parent="Audio"]
+unique_name_in_owner = true
+stream = ExtResource("2_cxlri")
+volume_db = -10.0
+mix_target = 2
+max_polyphony = 5
+
+[node name="Listen" type="AudioStreamPlayer" parent="Audio"]
+unique_name_in_owner = true
+stream = ExtResource("2_cxlri")
+volume_db = -10.0
+mix_target = 2
+max_polyphony = 5
+
+[node name="Raid" type="AudioStreamPlayer" parent="Audio"]
+unique_name_in_owner = true
+volume_db = -10.0
+mix_target = 2
+max_polyphony = 5
+script = ExtResource("4_l3pe0")
+bank = ExtResource("4_fgdw5")
 
 [node name="Chatlog" type="MarginContainer" parent="."]
 layout_mode = 1
