@@ -1,4 +1,4 @@
-[gd_scene load_steps=27 format=3 uid="uid://crw6ljthk4iuc"]
+[gd_scene load_steps=28 format=3 uid="uid://crw6ljthk4iuc"]
 
 [ext_resource type="Script" path="res://scenes/witch.gd" id="1_8stk4"]
 [ext_resource type="AudioStream" uid="uid://b5uhsrs22hev3" path="res://audio/notif.wav" id="2_x2h85"]
@@ -9,6 +9,7 @@
 [ext_resource type="Script" path="res://scenes/message.gd" id="6_ladj6"]
 [ext_resource type="Texture2D" uid="uid://bap6j18harldy" path="res://textures/bits.png" id="7_fhvrn"]
 [ext_resource type="Script" path="res://scenes/tips.gd" id="10_6gu28"]
+[ext_resource type="Script" path="res://scenes/read_file.gd" id="10_40snh"]
 [ext_resource type="Texture2D" uid="uid://bntx5wvxw4vq2" path="res://textures/type.svg" id="10_sj8ov"]
 [ext_resource type="Script" path="res://scenes/notice.gd" id="13_febxf"]
 
@@ -261,6 +262,20 @@ grow_horizontal = 2
 grow_vertical = 2
 theme_override_constants/margin_left = 10
 theme_override_constants/margin_right = 10
+
+[node name="VBoxContainer" type="VBoxContainer" parent="Bar/MarginContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+alignment = 1
+
+[node name="NowPlaying" type="RichTextLabel" parent="Bar/MarginContainer/VBoxContainer"]
+clip_contents = false
+layout_mode = 2
+theme = ExtResource("5_omci2")
+theme_override_font_sizes/normal_font_size = 25
+bbcode_enabled = true
+fit_content = true
+script = ExtResource("10_40snh")
 
 [node name="HBoxContainer" type="HBoxContainer" parent="Bar/MarginContainer"]
 layout_mode = 2
