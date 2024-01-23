@@ -1,4 +1,4 @@
-[gd_scene load_steps=30 format=3 uid="uid://crw6ljthk4iuc"]
+[gd_scene load_steps=32 format=3 uid="uid://crw6ljthk4iuc"]
 
 [ext_resource type="Script" path="res://scenes/witch.gd" id="1_8stk4"]
 [ext_resource type="AudioStream" uid="uid://b5uhsrs22hev3" path="res://audio/notif.wav" id="2_x2h85"]
@@ -21,7 +21,6 @@ colors = PackedColorArray(0, 0, 0, 0.8)
 
 [sub_resource type="GradientTexture1D" id="GradientTexture1D_udrwr"]
 gradient = SubResource("Gradient_k2i4l")
-width = 200
 
 [sub_resource type="Gradient" id="Gradient_x22jf"]
 offsets = PackedFloat32Array(0)
@@ -36,6 +35,11 @@ colors = PackedColorArray(0, 0, 0, 1)
 
 [sub_resource type="GradientTexture1D" id="GradientTexture1D_i6gij"]
 gradient = SubResource("Gradient_stjde")
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_y78mk"]
+content_margin_left = 10.0
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_i8mlq"]
 
 [sub_resource type="CanvasItemMaterial" id="CanvasItemMaterial_2ttua"]
 particles_animation = true
@@ -146,6 +150,7 @@ grow_horizontal = 0
 [node name="Background" type="TextureRect" parent="Chatlog"]
 layout_mode = 2
 texture = SubResource("GradientTexture1D_udrwr")
+expand_mode = 1
 
 [node name="MarginContainer" type="MarginContainer" parent="Chatlog"]
 layout_mode = 2
@@ -286,7 +291,7 @@ offset_right = 1080.0
 offset_bottom = 680.0
 grow_horizontal = 2
 grow_vertical = 2
-texture = SubResource("GradientTexture1D_i6gij")
+texture = SubResource("GradientTexture1D_udrwr")
 expand_mode = 1
 
 [node name="MarginContainer" type="MarginContainer" parent="Note"]
@@ -308,8 +313,9 @@ clip_contents = true
 layout_mode = 2
 size_flags_vertical = 3
 theme = ExtResource("5_omci2")
-theme_override_colors/background_color = Color(0, 0, 0, 1)
 theme_override_font_sizes/font_size = 25
+theme_override_styles/normal = SubResource("StyleBoxEmpty_y78mk")
+theme_override_styles/focus = SubResource("StyleBoxEmpty_i8mlq")
 caret_type = 1
 script = ExtResource("13_r4jsc")
 
