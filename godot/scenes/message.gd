@@ -129,7 +129,7 @@ func setup_text() -> void:
 	# Show the message
 	var missing_emotes = false
 	var last = 0
-	for emote in data["emotes"]:
+	for emote in data["emotes"] if data.has("emotes") else []:
 		var start = emote["char_range"]["start"]
 		var end = emote["char_range"]["end"]
 		append_bbcode(message_text.substr(last, start - last))
@@ -157,7 +157,7 @@ func setup_text() -> void:
 	if not missing_emotes and TwitchImageCache.emote_loaded.is_connected(setup):
 		TwitchImageCache.emote_loaded.disconnect(setup)
 	if not missing_emotes and not emitted_emotes and witch != null:
-		for emote in data["emotes"]:
+		for emote in data["emotes"] if data.has("emotes") else []:
 			var tex = TwitchImageCache.get_emote(
 				emote["id"],
 				TwitchImageCache.ThemeMode.Dark,

@@ -14,6 +14,7 @@ const DUPE_FLAGS := DUPLICATE_SIGNALS | DUPLICATE_GROUPS | DUPLICATE_SCRIPTS
 @onready var sub_prefab: SubOrResubNotif = %SubOrResub
 @onready var sub_gift_prefab: SubGiftNotif = %SubGift
 @onready var sub_mystery_gift_prefab: SubMysteryGiftNotif = %SubMysteryGift
+@onready var bits_badge_tier: BitsBadgeTierNotif = %BitsBadgeTier
 
 @onready var bits_container: Node = bits_prefab.get_parent()
 @onready var emotes_container: Node = emotes_prefab.get_parent()
@@ -30,19 +31,9 @@ func _ready():
 	chat_container.remove_child(sub_prefab)
 	chat_container.remove_child(sub_gift_prefab)
 	chat_container.remove_child(sub_mystery_gift_prefab)
+	chat_container.remove_child(bits_badge_tier)
 
 	irc.join("exodrifter_")
-	process_message({
-		"type": "user_notice",
-		"sender": {
-			"name": "exodrifter"
-		},
-		"event": {
-			"type": "anon_sub_mystery_gift",
-			"mass_gift_count": 10,
-			"sub_plan": "1000",
-		}
-	})
 
 func _process(_delta):
 	var messages = irc.poll()
@@ -93,9 +84,16 @@ func process_message(data: Dictionary) -> void:
 					chat_container.move_child(notif, 0)
 					notif.is_anonymous = true
 					notif.data = data
+				"bits_badge_tier":
+					var notif: BitsBadgeTierNotif = bits_badge_tier.duplicate(DUPE_FLAGS)
+					chat_container.add_child(notif)
+					chat_container.move_child(notif, 0)
+					notif.data = data
 				_:
 					# Treat unknown events like messages
-					if data["message_text"] != null and data["message_text"] != "":
+					if data.has("message_text") and \
+							data["message_text"] != null and \
+							data["message_text"] != "":
 						var message: Message = message_prefab.duplicate(DUPE_FLAGS)
 						chat_container.add_child(message)
 						chat_container.move_child(message, 0)
