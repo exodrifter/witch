@@ -12,8 +12,6 @@ enum Mode { Live, Replay }
 @onready var listen_player: AudioStreamPlayer = %ListenPlayer
 @onready var raid_player: SoundBankPlayer = %RaidPlayer
 @onready var sub_player: SoundBankPlayer = %SubPlayer
-@onready var replay_ended = %ReplayEnded
-@onready var replay_started = %ReplayStarted
 
 @onready var bits_prefab: GPUParticles2D = %BitParticles
 @onready var emotes_prefab: GPUParticles2D = %EmoteParticles
@@ -22,7 +20,9 @@ enum Mode { Live, Replay }
 @onready var sub_prefab: SubOrResubNotif = %SubOrResub
 @onready var sub_gift_prefab: SubGiftNotif = %SubGift
 @onready var sub_mystery_gift_prefab: SubMysteryGiftNotif = %SubMysteryGift
-@onready var bits_badge_tier: BitsBadgeTierNotif = %BitsBadgeTier
+@onready var bits_badge_tier_prefab: BitsBadgeTierNotif = %BitsBadgeTier
+@onready var warning_prefab: CustomNotif = %Warning
+@onready var clear_prefab: CustomNotif = %Clear
 
 @onready var bits_container: Node = bits_prefab.get_parent()
 @onready var emotes_container: Node = emotes_prefab.get_parent()
@@ -38,12 +38,10 @@ var live_irc_log: FileAccess
 var replay_irc_log: FileAccess
 var next_replay_line: String
 var first_unix_time: float
+var replay_ended: bool
 var elapsed: float
 
 func _ready():
-	replay_started.visible = false
-	replay_ended.visible = false
-
 	# Setup prefabs
 	bits_container.remove_child(bits_prefab)
 	emotes_container.remove_child(emotes_prefab)
@@ -52,23 +50,30 @@ func _ready():
 	chat_container.remove_child(sub_prefab)
 	chat_container.remove_child(sub_gift_prefab)
 	chat_container.remove_child(sub_mystery_gift_prefab)
-	chat_container.remove_child(bits_badge_tier)
+	chat_container.remove_child(bits_badge_tier_prefab)
+	chat_container.remove_child(warning_prefab)
+	chat_container.remove_child(clear_prefab)
+
+func spawn(prefab: Node) -> Node:
+	var message = prefab.duplicate(DUPE_FLAGS)
+	chat_container.add_child(message)
+	chat_container.move_child(message, 0)
+	return message
 
 func _process(delta):
 	match mode:
 		Mode.Replay:
 			# Open the replay file if we haven't already
 			if replay_irc_log == null:
-				replay_started.get_parent().move_child(replay_started, 0)
-				replay_started.visible = true
+				spawn(warning_prefab).text = "[color=#000]REPLAY STARTED[/color]"
 
 				replay_irc_log = FileAccess.open(replay_file, FileAccess.READ)
 				if replay_irc_log != null:
 					next_replay_line = replay_irc_log.get_line()
 					first_unix_time = float(next_replay_line.split(" ", true, 1)[0])
 				else:
-					replay_ended.get_parent().move_child(replay_ended, 0)
-					replay_ended.visible = true
+					replay_ended = true
+					spawn(warning_prefab).text = "[color=#000]REPLAY ENDED[/color]"
 
 			# Replay lines
 			while not replay_irc_log.eof_reached():
@@ -83,9 +88,9 @@ func _process(delta):
 					break
 
 			# Show replay ended notice
-			if replay_irc_log.eof_reached():
-				replay_ended.get_parent().move_child(replay_ended, 0)
-				replay_ended.visible = true
+			if replay_irc_log.eof_reached() and not replay_ended:
+				replay_ended = true
+				spawn(warning_prefab).text = "[color=#000]REPLAY ENDED[/color]"
 
 			elapsed += delta
 
@@ -173,8 +178,8 @@ func process_message(data: Dictionary) -> void:
 					chat_container.move_child(notif, 0)
 					notif.is_anonymous = true
 					notif.data = data
-				"bits_badge_tier":
-					var notif: BitsBadgeTierNotif = bits_badge_tier.duplicate(DUPE_FLAGS)
+				"bits_badge_tier_prefab":
+					var notif: BitsBadgeTierNotif = bits_badge_tier_prefab.duplicate(DUPE_FLAGS)
 					chat_container.add_child(notif)
 					chat_container.move_child(notif, 0)
 					notif.data = data
@@ -192,15 +197,23 @@ func process_message(data: Dictionary) -> void:
 func process_clear_chat(data: Dictionary) -> void:
 	match data.action.type:
 		"chat_cleared":
+			spawn(clear_prefab).text = "chat cleared"
 			for message in spawned_messages:
 				if message.channel_login == data.channel_login:
 					message.modulate = Color.TRANSPARENT
 		"user_banned":
+			spawn(clear_prefab).text = "{user} banned".format({
+				"user": data.action.user_login,
+			})
 			for message in spawned_messages:
 				if message.channel_login == data.channel_login and \
 						message.user_login == data.action.user_login:
 					message.modulate = Color.TRANSPARENT
 		"user_timed_out":
+			spawn(clear_prefab).text = "{user} timeout {duration}s".format({
+				"user": data.action.user_login,
+				"duration": data.action.timeout_length,
+			})
 			for message in spawned_messages:
 				if message.channel_login == data.channel_login and \
 						message.user_id == data.action.user_id:
