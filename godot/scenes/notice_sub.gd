@@ -1,15 +1,14 @@
 class_name SubOrResubNotif
 extends MarginContainer
 
-const template: String = "🎁 [wave]{username} {sub_plan} {months}mo[/wave]"
+const template: String = "[wave]{username} {sub_plan} {months}mo[/wave]"
 
 var data: Dictionary = {}:
 	set(value):
 		data = value
 		setup()
 
-@onready var background = $Background
-@onready var text = $Text
+@onready var text = $HBoxContainer/VBoxContainer/Text
 
 ## The UUID of the message.
 var message_id: String:
@@ -52,12 +51,8 @@ func _process(_delta) -> void:
 
 func setup() -> void:
 	name = message_id
-	setup_background()
 	setup_text()
 
-func setup_background():
-	background.modulate = Color.PURPLE
-	
 func setup_text():
 	match sub_plan:
 		"Prime":

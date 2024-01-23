@@ -3,13 +3,14 @@ extends Node
 
 const DUPE_FLAGS := DUPLICATE_SIGNALS | DUPLICATE_GROUPS | DUPLICATE_SCRIPTS
 
-@onready var notif_player: AudioStreamPlayer = %Notif
-@onready var listen_player: AudioStreamPlayer = %Listen
-@onready var raid_player: SoundBankPlayer = %Raid
+@onready var notif_player: AudioStreamPlayer = %NotifPlayer
+@onready var listen_player: AudioStreamPlayer = %ListenPlayer
+@onready var raid_player: SoundBankPlayer = %RaidPlayer
 
 @onready var bits_prefab: GPUParticles2D = %BitParticles
 @onready var emotes_prefab: GPUParticles2D = %EmoteParticles
 @onready var message_prefab: Message = %Message
+@onready var raid_prefab: RaidNotif = %Raid
 @onready var sub_prefab: SubOrResubNotif = %SubOrResub
 
 @onready var bits_container: Node = bits_prefab.get_parent()
@@ -23,6 +24,7 @@ func _ready():
 	bits_container.remove_child(bits_prefab)
 	emotes_container.remove_child(emotes_prefab)
 	chat_container.remove_child(message_prefab)
+	chat_container.remove_child(raid_prefab)
 	chat_container.remove_child(sub_prefab)
 
 	irc.join("exodrifter_")
@@ -38,6 +40,16 @@ func _ready():
 			"sub_plan": "1000",
 		},
 	})
+	process_message({
+		"type": "user_notice",
+		"sender": {
+			"name": "test_user"
+		},
+		"event": {
+			"type": "raid",
+			"viewer_count": 10,
+		},
+	})
 
 func _process(_delta):
 	var messages = irc.poll()
@@ -51,8 +63,6 @@ func process_message(data: Dictionary) -> void:
 			match data.message_text:
 				"!listen":
 					listen_player.play()
-				"!raid":
-					raid_player.play_random()
 				_:
 					notif_player.play()
 
@@ -68,6 +78,12 @@ func process_message(data: Dictionary) -> void:
 			match data.event.type:
 				"sub_or_resub":
 					var notif: SubOrResubNotif = sub_prefab.duplicate(DUPE_FLAGS)
+					chat_container.add_child(notif)
+					chat_container.move_child(notif, 0)
+					notif.data = data
+				"raid":
+					raid_player.play_random()
+					var notif: RaidNotif = raid_prefab.duplicate(DUPE_FLAGS)
 					chat_container.add_child(notif)
 					chat_container.move_child(notif, 0)
 					notif.data = data
