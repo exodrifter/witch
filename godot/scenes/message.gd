@@ -8,8 +8,8 @@ var data: Dictionary = {}:
 		data = value
 		setup()
 
-@onready var color_bar = $ColorBar
-@onready var text = $Text
+@onready var color_bar = $HBoxContainer/ColorBar
+@onready var text = $HBoxContainer/Text
 
 ## The UUID of the message.
 var message_id: String:

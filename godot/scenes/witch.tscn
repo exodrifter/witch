@@ -1,4 +1,4 @@
-[gd_scene load_steps=21 format=3 uid="uid://crw6ljthk4iuc"]
+[gd_scene load_steps=24 format=3 uid="uid://crw6ljthk4iuc"]
 
 [ext_resource type="Script" path="res://scenes/witch.gd" id="1_8stk4"]
 [ext_resource type="AudioStream" uid="uid://b5uhsrs22hev3" path="res://audio/notif.wav" id="2_x2h85"]
@@ -6,6 +6,7 @@
 [ext_resource type="Resource" uid="uid://dqlodn3im2imi" path="res://audio/raid.tres" id="4_i1xt5"]
 [ext_resource type="Theme" uid="uid://omkl8qh717w8" path="res://default_theme.tres" id="5_omci2"]
 [ext_resource type="Script" path="res://scenes/message.gd" id="6_ladj6"]
+[ext_resource type="Script" path="res://scenes/notice_sub.gd" id="7_eji7i"]
 [ext_resource type="Texture2D" uid="uid://bap6j18harldy" path="res://textures/bits.png" id="7_fhvrn"]
 
 [sub_resource type="Gradient" id="Gradient_k2i4l"]
@@ -21,6 +22,12 @@ colors = PackedColorArray(1, 1, 1, 1, 1, 1, 1, 1)
 [sub_resource type="GradientTexture1D" id="GradientTexture1D_mvfe0"]
 gradient = SubResource("Gradient_kgqar")
 width = 2
+
+[sub_resource type="Gradient" id="Gradient_x22jf"]
+colors = PackedColorArray(1, 1, 1, 1, 1, 1, 1, 1)
+
+[sub_resource type="GradientTexture1D" id="GradientTexture1D_i5c4a"]
+gradient = SubResource("Gradient_x22jf")
 
 [sub_resource type="CanvasItemMaterial" id="CanvasItemMaterial_2ttua"]
 particles_animation = true
@@ -130,28 +137,46 @@ texture = SubResource("GradientTexture1D_udrwr")
 
 [node name="MarginContainer" type="MarginContainer" parent="Chatlog"]
 layout_mode = 2
-theme_override_constants/margin_left = 5
-theme_override_constants/margin_top = 5
-theme_override_constants/margin_right = 5
-theme_override_constants/margin_bottom = 5
 
 [node name="VBoxContainer" type="VBoxContainer" parent="Chatlog/MarginContainer"]
 layout_mode = 2
 
-[node name="Message" type="HBoxContainer" parent="Chatlog/MarginContainer/VBoxContainer"]
+[node name="Message" type="MarginContainer" parent="Chatlog/MarginContainer/VBoxContainer"]
 unique_name_in_owner = true
 layout_mode = 2
 script = ExtResource("6_ladj6")
 
-[node name="ColorBar" type="TextureRect" parent="Chatlog/MarginContainer/VBoxContainer/Message"]
+[node name="HBoxContainer" type="HBoxContainer" parent="Chatlog/MarginContainer/VBoxContainer/Message"]
+layout_mode = 2
+
+[node name="ColorBar" type="TextureRect" parent="Chatlog/MarginContainer/VBoxContainer/Message/HBoxContainer"]
 layout_mode = 2
 texture = SubResource("GradientTexture1D_mvfe0")
 
-[node name="Text" type="RichTextLabel" parent="Chatlog/MarginContainer/VBoxContainer/Message"]
+[node name="Text" type="RichTextLabel" parent="Chatlog/MarginContainer/VBoxContainer/Message/HBoxContainer"]
 layout_mode = 2
 size_flags_horizontal = 3
 theme = ExtResource("5_omci2")
 text = "exodrifter: Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Urna duis convallis convallis tellus id interdum velit. Vulputate enim nulla aliquet porttitor lacus luctus. Malesuada bibendum arcu vitae elementum."
+fit_content = true
+visible_characters_behavior = 1
+
+[node name="SubOrResub" type="MarginContainer" parent="Chatlog/MarginContainer/VBoxContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+script = ExtResource("7_eji7i")
+
+[node name="Background" type="TextureRect" parent="Chatlog/MarginContainer/VBoxContainer/SubOrResub"]
+modulate = Color(0.627, 0.125, 0.941, 1)
+layout_mode = 2
+texture = SubResource("GradientTexture1D_i5c4a")
+
+[node name="Text" type="RichTextLabel" parent="Chatlog/MarginContainer/VBoxContainer/SubOrResub"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme = ExtResource("5_omci2")
+bbcode_enabled = true
+text = "🎁 exodrifter subbed!"
 fit_content = true
 visible_characters_behavior = 1
 
