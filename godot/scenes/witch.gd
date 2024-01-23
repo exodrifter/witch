@@ -16,11 +16,6 @@ enum Mode { Live, Replay }
 @onready var bits_prefab: GPUParticles2D = %BitParticles
 @onready var emotes_prefab: GPUParticles2D = %EmoteParticles
 @onready var message_prefab: Message = %Message
-@onready var raid_prefab: RaidNotif = %Raid
-@onready var sub_prefab: SubOrResubNotif = %SubOrResub
-@onready var sub_gift_prefab: SubGiftNotif = %SubGift
-@onready var sub_mystery_gift_prefab: SubMysteryGiftNotif = %SubMysteryGift
-@onready var bits_badge_tier_prefab: BitsBadgeTierNotif = %BitsBadgeTier
 @onready var notice_prefab: Notice = %Notice
 
 @onready var bits_container: Node = bits_prefab.get_parent()
@@ -45,11 +40,6 @@ func _ready():
 	bits_container.remove_child(bits_prefab)
 	emotes_container.remove_child(emotes_prefab)
 	chat_container.remove_child(message_prefab)
-	chat_container.remove_child(raid_prefab)
-	chat_container.remove_child(sub_prefab)
-	chat_container.remove_child(sub_gift_prefab)
-	chat_container.remove_child(sub_mystery_gift_prefab)
-	chat_container.remove_child(bits_badge_tier_prefab)
 	chat_container.remove_child(notice_prefab)
 
 func _process(delta):
@@ -122,6 +112,8 @@ func _process(delta):
 				}))
 			live_irc_log.flush()
 
+#region Message Processing
+
 func process_message(data: Dictionary) -> void:
 	match data.type:
 		"clear_chat":
@@ -148,52 +140,7 @@ func process_message(data: Dictionary) -> void:
 			spawn_bits(message.bits)
 
 		"user_notice":
-			match data.event.type:
-				"sub_or_resub":
-					sub_player.play_random()
-					var notif: SubOrResubNotif = sub_prefab.duplicate(DUPE_FLAGS)
-					chat_container.add_child(notif)
-					chat_container.move_child(notif, 0)
-					notif.data = data
-				"raid":
-					raid_player.play_random()
-					var notif: RaidNotif = raid_prefab.duplicate(DUPE_FLAGS)
-					chat_container.add_child(notif)
-					chat_container.move_child(notif, 0)
-					notif.data = data
-				"sub_gift":
-					sub_player.play_random()
-					var notif: SubGiftNotif = sub_gift_prefab.duplicate(DUPE_FLAGS)
-					chat_container.add_child(notif)
-					chat_container.move_child(notif, 0)
-					notif.data = data
-				"sub_mystery_gift":
-					var notif: SubMysteryGiftNotif = sub_mystery_gift_prefab.duplicate(DUPE_FLAGS)
-					chat_container.add_child(notif)
-					chat_container.move_child(notif, 0)
-					notif.is_anonymous = false
-					notif.data = data
-				"anon_sub_mystery_gift":
-					var notif: SubMysteryGiftNotif = sub_mystery_gift_prefab.duplicate(DUPE_FLAGS)
-					chat_container.add_child(notif)
-					chat_container.move_child(notif, 0)
-					notif.is_anonymous = true
-					notif.data = data
-				"bits_badge_tier_prefab":
-					var notif: BitsBadgeTierNotif = bits_badge_tier_prefab.duplicate(DUPE_FLAGS)
-					chat_container.add_child(notif)
-					chat_container.move_child(notif, 0)
-					notif.data = data
-				_:
-					# Treat unknown events like messages
-					if data.has("message_text") and \
-							data["message_text"] != null and \
-							data["message_text"] != "":
-						var message: Message = message_prefab.duplicate(DUPE_FLAGS)
-						chat_container.add_child(message)
-						chat_container.move_child(message, 0)
-						message.witch = self
-						message.data = data
+			process_notice(data)
 
 func process_clear_chat(data: Dictionary) -> void:
 	match data.action.type:
@@ -234,6 +181,76 @@ func process_clear_msg(data: Dictionary) -> void:
 		if message.channel_login == data.channel_login and \
 				message.message_id == data.message_id:
 			message.modulate = Color.TRANSPARENT
+
+func process_notice(data: Dictionary) -> void:
+	match data.event.type:
+		"sub_or_resub":
+			sub_player.play_random()
+			spawn_notice(
+				"⭐", "[wave]{name} {type} {months}mo[/wave]".format({
+					"name": data.sender.name,
+					"type": data.event.sub_plan,
+					"months": data.event.cumulative_months,
+				}),
+				Color.PURPLE, Color.WHITE
+			)
+		"raid":
+			raid_player.play_random()
+			spawn_notice(
+				"⚑", "[wave]{raider} +{viewers}👁[/wave]".format({
+					"raider": data.sender.name,
+					"viewers": data.event.viewer_count,
+				}),
+				Color.PURPLE, Color.WHITE
+			)
+		"sub_gift":
+			sub_player.play_random()
+			spawn_notice(
+				"📦", "[wave]{name} {type} {months}mo[/wave]".format({
+					"name": data.sender.name,
+					"type": data.event.sub_plan,
+					"months": data.event.cumulative_months,
+				}),
+				Color.PURPLE, Color.WHITE
+			)
+		"sub_mystery_gift":
+			spawn_notice(
+				"🚚", "[wave]{name} +{count}📦 {type}[/wave]".format({
+					"name": data.sender.name,
+					"count": data.event.mass_gift_count,
+					"type": data.event.sub_plan,
+				}),
+				Color.PURPLE, Color.WHITE
+			)
+		"anon_sub_mystery_gift":
+			spawn_notice(
+				"🚚", "[wave]{name} +{count}📦 {type}[/wave]".format({
+					"name": data.sender.name,
+					"count": data.event.mass_gift_count,
+					"type": data.event.sub_plan,
+				}),
+				Color.PURPLE, Color.WHITE
+			)
+		"bits_badge_tier_prefab":
+			spawn_notice(
+				"⬙", "[wave]{name} {threshold}![/wave]".format({
+					"name": data.sender.name,
+					"threshold": data.event.threshold,
+				}),
+				Color.PURPLE, Color.WHITE
+			)
+		_:
+			# Treat unknown events like messages
+			if data.has("message_text") and \
+					data["message_text"] != null and \
+					data["message_text"] != "":
+				var message: Message = message_prefab.duplicate(DUPE_FLAGS)
+				chat_container.add_child(message)
+				chat_container.move_child(message, 0)
+				message.witch = self
+				message.data = data
+
+#endregion
 
 #region Spawners
 
