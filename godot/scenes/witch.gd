@@ -65,15 +65,16 @@ func _process(delta):
 		Mode.Replay:
 			# Open the replay file if we haven't already
 			if replay_irc_log == null:
-				spawn(warning_prefab).text = "[color=#000]REPLAY STARTED[/color]"
-
 				replay_irc_log = FileAccess.open(replay_file, FileAccess.READ)
 				if replay_irc_log != null:
 					next_replay_line = replay_irc_log.get_line()
 					first_unix_time = float(next_replay_line.split(" ", true, 1)[0])
+					spawn(warning_prefab).text = \
+						"[color=#000]%s[/color]" % \
+							Time.get_datetime_string_from_unix_time(floori(first_unix_time))
 				else:
 					replay_ended = true
-					spawn(warning_prefab).text = "[color=#000]REPLAY ENDED[/color]"
+					spawn(warning_prefab).text = "[color=#000]REPLAY FAILED[/color]"
 
 			# Replay lines
 			while not replay_irc_log.eof_reached():
