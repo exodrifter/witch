@@ -6,6 +6,7 @@ const DUPE_FLAGS := DUPLICATE_SIGNALS | DUPLICATE_GROUPS | DUPLICATE_SCRIPTS
 @onready var notif_player: AudioStreamPlayer = %NotifPlayer
 @onready var listen_player: AudioStreamPlayer = %ListenPlayer
 @onready var raid_player: SoundBankPlayer = %RaidPlayer
+@onready var sub_player: SoundBankPlayer = %SubPlayer
 
 @onready var bits_prefab: GPUParticles2D = %BitParticles
 @onready var emotes_prefab: GPUParticles2D = %EmoteParticles
@@ -62,6 +63,7 @@ func process_message(data: Dictionary) -> void:
 		"user_notice":
 			match data.event.type:
 				"sub_or_resub":
+					sub_player.play_random()
 					var notif: SubOrResubNotif = sub_prefab.duplicate(DUPE_FLAGS)
 					chat_container.add_child(notif)
 					chat_container.move_child(notif, 0)
@@ -69,6 +71,12 @@ func process_message(data: Dictionary) -> void:
 				"raid":
 					raid_player.play_random()
 					var notif: RaidNotif = raid_prefab.duplicate(DUPE_FLAGS)
+					chat_container.add_child(notif)
+					chat_container.move_child(notif, 0)
+					notif.data = data
+				"sub_gift":
+					sub_player.play_random()
+					var notif: SubGiftNotif = sub_gift_prefab.duplicate(DUPE_FLAGS)
 					chat_container.add_child(notif)
 					chat_container.move_child(notif, 0)
 					notif.data = data

@@ -1,8 +1,9 @@
-[gd_scene load_steps=28 format=3 uid="uid://crw6ljthk4iuc"]
+[gd_scene load_steps=29 format=3 uid="uid://crw6ljthk4iuc"]
 
 [ext_resource type="Script" path="res://scenes/witch.gd" id="1_8stk4"]
 [ext_resource type="AudioStream" uid="uid://b5uhsrs22hev3" path="res://audio/notif.wav" id="2_x2h85"]
 [ext_resource type="Script" path="res://code/sound_bank_player.gd" id="3_3u2pl"]
+[ext_resource type="Resource" uid="uid://dvxm5r8725qsl" path="res://audio/sub.tres" id="4_8w5af"]
 [ext_resource type="Resource" uid="uid://dqlodn3im2imi" path="res://audio/raid.tres" id="4_i1xt5"]
 [ext_resource type="Theme" uid="uid://omkl8qh717w8" path="res://default_theme.tres" id="5_omci2"]
 [ext_resource type="Script" path="res://scenes/message.gd" id="6_ladj6"]
@@ -118,13 +119,17 @@ volume_db = -10.0
 mix_target = 2
 max_polyphony = 5
 
-[node name="RaidPlayer" type="AudioStreamPlayer" parent="Audio"]
+[node name="RaidPlayer" type="Node" parent="Audio"]
 unique_name_in_owner = true
-volume_db = -10.0
-mix_target = 2
-max_polyphony = 5
 script = ExtResource("3_3u2pl")
 bank = ExtResource("4_i1xt5")
+volume_db = -10.0
+
+[node name="SubPlayer" type="Node" parent="Audio"]
+unique_name_in_owner = true
+script = ExtResource("3_3u2pl")
+bank = ExtResource("4_8w5af")
+volume_db = -10.0
 
 [node name="Chatlog" type="MarginContainer" parent="."]
 layout_mode = 1
