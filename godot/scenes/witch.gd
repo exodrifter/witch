@@ -3,6 +3,8 @@ extends Node
 
 const DUPE_FLAGS := DUPLICATE_SIGNALS | DUPLICATE_GROUPS | DUPLICATE_SCRIPTS
 
+@export var channel: String = "exodrifter_"
+
 @onready var notif_player: AudioStreamPlayer = %NotifPlayer
 @onready var listen_player: AudioStreamPlayer = %ListenPlayer
 @onready var raid_player: SoundBankPlayer = %RaidPlayer
@@ -35,7 +37,7 @@ func _ready():
 	chat_container.remove_child(sub_mystery_gift_prefab)
 	chat_container.remove_child(bits_badge_tier)
 
-	irc.join("hasanabi")
+	irc.join(channel)
 
 func _process(_delta):
 	var messages = irc.poll()
