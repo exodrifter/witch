@@ -43,11 +43,10 @@ func process_message(data: Dictionary) -> void:
 					notif_player.play()
 
 			var message: Message = message_prefab.duplicate(DUPE_FLAGS)
-			message.witch = self
-			message.data = data
 			chat_container.add_child(message)
 			chat_container.move_child(message, 0)
-			print(data)
+			message.witch = self
+			message.data = data
 
 			process_bits(message.bits)
 

@@ -1,4 +1,4 @@
-[gd_scene load_steps=19 format=3 uid="uid://crw6ljthk4iuc"]
+[gd_scene load_steps=21 format=3 uid="uid://crw6ljthk4iuc"]
 
 [ext_resource type="Script" path="res://scenes/witch.gd" id="1_8stk4"]
 [ext_resource type="AudioStream" uid="uid://b5uhsrs22hev3" path="res://audio/notif.wav" id="2_x2h85"]
@@ -14,6 +14,13 @@ colors = PackedColorArray(0, 0, 0, 1, 0, 0, 0, 1)
 [sub_resource type="GradientTexture1D" id="GradientTexture1D_udrwr"]
 gradient = SubResource("Gradient_k2i4l")
 width = 200
+
+[sub_resource type="Gradient" id="Gradient_kgqar"]
+colors = PackedColorArray(1, 1, 1, 1, 1, 1, 1, 1)
+
+[sub_resource type="GradientTexture1D" id="GradientTexture1D_mvfe0"]
+gradient = SubResource("Gradient_kgqar")
+width = 2
 
 [sub_resource type="CanvasItemMaterial" id="CanvasItemMaterial_2ttua"]
 particles_animation = true
@@ -131,14 +138,22 @@ theme_override_constants/margin_bottom = 5
 [node name="VBoxContainer" type="VBoxContainer" parent="Chatlog/MarginContainer"]
 layout_mode = 2
 
-[node name="Message" type="RichTextLabel" parent="Chatlog/MarginContainer/VBoxContainer"]
+[node name="Message" type="HBoxContainer" parent="Chatlog/MarginContainer/VBoxContainer"]
 unique_name_in_owner = true
 layout_mode = 2
+script = ExtResource("6_ladj6")
+
+[node name="ColorBar" type="TextureRect" parent="Chatlog/MarginContainer/VBoxContainer/Message"]
+layout_mode = 2
+texture = SubResource("GradientTexture1D_mvfe0")
+
+[node name="Text" type="RichTextLabel" parent="Chatlog/MarginContainer/VBoxContainer/Message"]
+layout_mode = 2
+size_flags_horizontal = 3
 theme = ExtResource("5_omci2")
 text = "exodrifter: Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Urna duis convallis convallis tellus id interdum velit. Vulputate enim nulla aliquet porttitor lacus luctus. Malesuada bibendum arcu vitae elementum."
 fit_content = true
 visible_characters_behavior = 1
-script = ExtResource("6_ladj6")
 
 [node name="BitParticles" type="GPUParticles2D" parent="."]
 unique_name_in_owner = true

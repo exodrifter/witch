@@ -107,6 +107,7 @@ fn conv_message(msg: &ServerMessage) -> Dictionary {
                 },
             },
             "server_timestamp": msg.server_timestamp.timestamp(),
+            "source": conv_source(&msg.source)
         },
         ClearMsg(msg) => dict! {
             "type": "clear_msg",
@@ -116,6 +117,7 @@ fn conv_message(msg: &ServerMessage) -> Dictionary {
             "message_text": msg.message_text.to_variant(),
             "is_action": msg.is_action,
             "server_timestamp": msg.server_timestamp.timestamp(),
+            "source": conv_source(&msg.source)
         },
         GlobalUserState(msg) => dict!{
             "type": "global_user_state",
@@ -125,28 +127,34 @@ fn conv_message(msg: &ServerMessage) -> Dictionary {
             "badges": map_vec_to_array(&msg.badges, &conv_badge),
             "emote_sets": hashset_to_array(&msg.emote_sets),
             "name_color": conv_or_nil(&msg.name_color, &conv_color),
+            "source": conv_source(&msg.source)
         },
         Join(msg) => dict! {
             "type": "join",
             "channel_login": msg.channel_login.to_variant(),
             "user_login": msg.user_login.to_variant(),
+            "source": conv_source(&msg.source)
         },
         Notice(msg) => dict! {
             "type": "notice",
             "channel_login": variant_or_nil(&msg.channel_login),
             "message_text": msg.message_text.to_variant(),
             "message_id": variant_or_nil(&msg.message_id),
+            "source": conv_source(&msg.source)
         },
         Part(msg) => dict! {
             "type": "part",
             "channel_login": msg.channel_login.to_variant(),
             "user_login": msg.user_login.to_variant(),
+            "source": conv_source(&msg.source)
         },
-        Ping(_) => dict!{
+        Ping(msg) => dict!{
             "type": "ping",
+            "source": conv_source(&msg.source),
         },
-        Pong(_) => dict!{
+        Pong(msg) => dict!{
             "type": "pong",
+            "source": conv_source(&msg.source),
         },
         Privmsg(msg) => dict!{
             "type": "privmsg",
@@ -162,9 +170,11 @@ fn conv_message(msg: &ServerMessage) -> Dictionary {
             "emotes": map_vec_to_array(&msg.emotes, &conv_emote),
             "message_id": msg.message_id.to_variant(),
             "server_timestamp": msg.server_timestamp.timestamp(),
+            "source": conv_source(&msg.source)
         },
-        Reconnect(_) => dict!{
+        Reconnect(msg) => dict!{
             "type": "reconnect",
+            "source": conv_source(&msg.source)
         },
         RoomState(msg) => dict!{
             "type": "room_state",
@@ -175,6 +185,7 @@ fn conv_message(msg: &ServerMessage) -> Dictionary {
             "r9k": variant_or_nil(&msg.r9k),
             "slow_mode": conv_or_nil(&msg.slow_mode, &|a| a.as_secs()),
             "subscribers_only": variant_or_nil(&msg.subscribers_only),
+            "source": conv_source(&msg.source)
         },
         UserNotice(msg) => dict!{
             "type": "user_notice",
@@ -191,6 +202,7 @@ fn conv_message(msg: &ServerMessage) -> Dictionary {
             "name_color": conv_or_nil(&msg.name_color, &conv_color),
             "message_id": msg.message_id.to_variant(),
             "server_timestamp": msg.server_timestamp.timestamp(),
+            "source": conv_source(&msg.source)
         },
         UserState(msg) => dict!{
             "type": "user_state",
@@ -200,6 +212,7 @@ fn conv_message(msg: &ServerMessage) -> Dictionary {
             "badges": map_vec_to_array(&msg.badges, &conv_badge),
             "emote_sets": hashset_to_array(&msg.emote_sets),
             "name_color": conv_or_nil(&msg.name_color, &conv_color),
+            "source": conv_source(&msg.source)
         },
         Whisper(msg) => dict!{
             "type": "whisper",
@@ -209,9 +222,11 @@ fn conv_message(msg: &ServerMessage) -> Dictionary {
             "name_color": conv_or_nil(&msg.name_color, &conv_color),
             "badges": map_vec_to_array(&msg.badges, &conv_badge),
             "emotes": map_vec_to_array(&msg.emotes, &conv_emote),
+            "source": conv_source(&msg.source)
         },
-        _ => dict! {
-            "type": "unknown"
+        msg => dict! {
+            "type": "unknown",
+            "source": conv_source(&IRCMessage::from(msg.clone())),
         }
     }
 }
@@ -309,6 +324,25 @@ fn conv_follwers_only(mode: &FollowersOnlyMode) -> Dictionary {
     }
 }
 
+fn conv_irc_prefix(prefix: &IRCPrefix) -> Dictionary {
+    match prefix {
+        IRCPrefix::HostOnly {host} => dict! {
+            "type": "host_only",
+            "host": host.to_variant(),
+        },
+        IRCPrefix::Full {nick, user, host} => dict! {
+            "type": "full",
+            "nick": nick.to_variant(),
+            "user": variant_or_nil(user),
+            "host": variant_or_nil(host),
+        },
+    }
+}
+
+fn conv_irc_tags(tags: &IRCTags) -> Dictionary {
+    tags.0.iter().map(|(k,v)| (k.to_variant(), variant_or_nil(v))).collect()
+}
+
 fn conv_promotion(promo: &SubGiftPromo) -> Dictionary {
     dict!{
         "total_gifts": promo.total_gifts.to_variant(),
@@ -321,6 +355,15 @@ fn conv_sender(sender: &TwitchUserBasics) -> Dictionary {
         "id": sender.id.to_variant(),
         "login": sender.id.to_variant(),
         "name": sender.name.to_variant(),
+    }
+}
+
+fn conv_source(source: &IRCMessage) -> Dictionary {
+    dict! {
+        "tags": conv_irc_tags(&source.tags),
+        "prefix": conv_or_nil(&source.prefix, &conv_irc_prefix),
+        "command": source.command.to_variant(),
+        "params": vec_to_array(&source.params),
     }
 }
 
@@ -346,6 +389,10 @@ fn variant_or_nil(a: &Option<impl ToGodot>) -> Variant {
 
 fn hashset_to_array(hashset: &HashSet<impl ToGodot>) -> Array<Variant> {
     hashset.iter().map(|a| a.to_variant()).collect()
+}
+
+fn vec_to_array(vec: &Vec<impl ToGodot>) -> Array<Variant> {
+    vec.iter().map(|a| a.to_variant()).collect()
 }
 
 fn map_vec_to_array<T, V: ToGodot>(vec: &Vec<T>, func: &dyn Fn(&T) -> V) -> Array<Variant> {
