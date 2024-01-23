@@ -56,8 +56,11 @@ var user_color: Color:
 ## If true, this message was sent by a broadcaster.
 var is_broadcaster: bool:
 	get:
-		# TODO: Check badges for broadcaster
-		return user_name == "exodrifter_"
+		if data.has("badges"):
+			for badge in data["badges"]:
+				if badge.has("name") and badge["name"] == "broadcaster":
+					return true
+		return false
 
 ## If true, this message was sent by a mod.
 var is_mod: bool:
