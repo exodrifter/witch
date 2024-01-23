@@ -129,7 +129,7 @@ func process_message(data: Dictionary) -> void:
 			match data.message_text.split(" ", true, 1)[0]:
 				"!listen":
 					listen_player.play()
-				"!dont":
+				"!don't":
 					crash_player.play()
 				_:
 					notif_player.play()
