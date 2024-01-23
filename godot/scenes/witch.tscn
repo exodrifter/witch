@@ -1,6 +1,7 @@
-[gd_scene load_steps=32 format=3 uid="uid://crw6ljthk4iuc"]
+[gd_scene load_steps=33 format=3 uid="uid://crw6ljthk4iuc"]
 
 [ext_resource type="Script" path="res://scenes/witch.gd" id="1_8stk4"]
+[ext_resource type="AudioStream" uid="uid://cx0k3ttqomk2y" path="res://audio/dont.wav" id="2_dr4d4"]
 [ext_resource type="AudioStream" uid="uid://b5uhsrs22hev3" path="res://audio/notif.wav" id="2_x2h85"]
 [ext_resource type="Script" path="res://code/sound_bank_player.gd" id="3_3u2pl"]
 [ext_resource type="AudioStream" uid="uid://bl02xehyrcwbq" path="res://audio/listen.wav" id="3_4nare"]
@@ -112,9 +113,9 @@ script = ExtResource("1_8stk4")
 
 [node name="Audio" type="Node" parent="."]
 
-[node name="NotifPlayer" type="AudioStreamPlayer" parent="Audio"]
+[node name="CrashPlayer" type="AudioStreamPlayer" parent="Audio"]
 unique_name_in_owner = true
-stream = ExtResource("2_x2h85")
+stream = ExtResource("2_dr4d4")
 volume_db = -10.0
 mix_target = 2
 max_polyphony = 5
@@ -122,6 +123,13 @@ max_polyphony = 5
 [node name="ListenPlayer" type="AudioStreamPlayer" parent="Audio"]
 unique_name_in_owner = true
 stream = ExtResource("3_4nare")
+volume_db = -10.0
+mix_target = 2
+max_polyphony = 5
+
+[node name="NotifPlayer" type="AudioStreamPlayer" parent="Audio"]
+unique_name_in_owner = true
+stream = ExtResource("2_x2h85")
 volume_db = -10.0
 mix_target = 2
 max_polyphony = 5

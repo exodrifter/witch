@@ -8,8 +8,9 @@ enum Mode { Live, Replay }
 @export var channel: String = "exodrifter_"
 @export var replay_file: String = ""
 
-@onready var notif_player: AudioStreamPlayer = %NotifPlayer
+@onready var crash_player: AudioStreamPlayer = %CrashPlayer
 @onready var listen_player: AudioStreamPlayer = %ListenPlayer
+@onready var notif_player: AudioStreamPlayer = %NotifPlayer
 @onready var raid_player: SoundBankPlayer = %RaidPlayer
 @onready var sub_player: SoundBankPlayer = %SubPlayer
 
@@ -125,9 +126,11 @@ func process_message(data: Dictionary) -> void:
 
 		"privmsg":
 			# Play the sound effect
-			match data.message_text:
+			match data.message_text.split(" ", true, 1)[0]:
 				"!listen":
 					listen_player.play()
+				"!dont":
+					crash_player.play()
 				_:
 					notif_player.play()
 
