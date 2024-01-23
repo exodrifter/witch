@@ -103,9 +103,6 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 script = ExtResource("1_8stk4")
-mode = 1
-channel = "earend"
-replay_file = "user://2024-01-23-05-47-08.txt"
 
 [node name="Audio" type="Node" parent="."]
 
