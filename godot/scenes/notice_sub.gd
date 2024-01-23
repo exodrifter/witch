@@ -18,7 +18,7 @@ var message_id: String:
 		else:
 			return "00000000-0000-0000-0000-000000000000"
 
-## The name of the user who sent the notice.
+## The name of the user who is subscribing or resubscribing.
 var user_name: String:
 	get:
 		if data.has("sender") and data["sender"].has("name"):

@@ -12,6 +12,7 @@ const DUPE_FLAGS := DUPLICATE_SIGNALS | DUPLICATE_GROUPS | DUPLICATE_SCRIPTS
 @onready var message_prefab: Message = %Message
 @onready var raid_prefab: RaidNotif = %Raid
 @onready var sub_prefab: SubOrResubNotif = %SubOrResub
+@onready var sub_gift_prefab: SubGiftNotif = %SubGift
 
 @onready var bits_container: Node = bits_prefab.get_parent()
 @onready var emotes_container: Node = emotes_prefab.get_parent()
@@ -26,35 +27,15 @@ func _ready():
 	chat_container.remove_child(message_prefab)
 	chat_container.remove_child(raid_prefab)
 	chat_container.remove_child(sub_prefab)
+	chat_container.remove_child(sub_gift_prefab)
 
 	irc.join("exodrifter_")
-
-	process_message({
-		"type": "user_notice",
-		"sender": {
-			"name": "test_user"
-		},
-		"event": {
-			"type": "sub_or_resub",
-			"cumulative_months": 3,
-			"sub_plan": "1000",
-		},
-	})
-	process_message({
-		"type": "user_notice",
-		"sender": {
-			"name": "test_user"
-		},
-		"event": {
-			"type": "raid",
-			"viewer_count": 10,
-		},
-	})
 
 func _process(_delta):
 	var messages = irc.poll()
 	for message in messages:
 		process_message(message)
+		print(message)
 
 func process_message(data: Dictionary) -> void:
 	match data.type:
@@ -87,6 +68,19 @@ func process_message(data: Dictionary) -> void:
 					chat_container.add_child(notif)
 					chat_container.move_child(notif, 0)
 					notif.data = data
+				"sub_gift":
+					var notif: SubGiftNotif = raid_prefab.duplicate(DUPE_FLAGS)
+					chat_container.add_child(notif)
+					chat_container.move_child(notif, 0)
+					notif.data = data
+				_:
+					# Treat unknown events like messages
+					if data["message_text"] != null and data["message_text"] != "":
+						var message: Message = message_prefab.duplicate(DUPE_FLAGS)
+						chat_container.add_child(message)
+						chat_container.move_child(message, 0)
+						message.witch = self
+						message.data = data
 
 func process_bits(bits: int) -> void:
 	if bits <= 0:

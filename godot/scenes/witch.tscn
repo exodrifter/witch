@@ -1,4 +1,4 @@
-[gd_scene load_steps=25 format=3 uid="uid://crw6ljthk4iuc"]
+[gd_scene load_steps=26 format=3 uid="uid://crw6ljthk4iuc"]
 
 [ext_resource type="Script" path="res://scenes/witch.gd" id="1_8stk4"]
 [ext_resource type="AudioStream" uid="uid://b5uhsrs22hev3" path="res://audio/notif.wav" id="2_x2h85"]
@@ -9,6 +9,7 @@
 [ext_resource type="Script" path="res://scenes/notice_sub.gd" id="7_eji7i"]
 [ext_resource type="Texture2D" uid="uid://bap6j18harldy" path="res://textures/bits.png" id="7_fhvrn"]
 [ext_resource type="Script" path="res://scenes/notice_raid.gd" id="8_bm25e"]
+[ext_resource type="Script" path="res://scenes/notice_sub_gift.gd" id="9_cli07"]
 
 [sub_resource type="Gradient" id="Gradient_k2i4l"]
 colors = PackedColorArray(0, 0, 0, 1, 0, 0, 0, 1)
@@ -168,7 +169,7 @@ layout_mode = 2
 script = ExtResource("7_eji7i")
 
 [node name="Background" type="TextureRect" parent="Chatlog/MarginContainer/VBoxContainer/SubOrResub"]
-modulate = Color(0.627, 0.125, 0.941, 1)
+modulate = Color(0.627451, 0.12549, 0.941176, 1)
 layout_mode = 2
 texture = SubResource("GradientTexture1D_i5c4a")
 
@@ -229,6 +230,76 @@ size_flags_vertical = 0
 theme = ExtResource("5_omci2")
 bbcode_enabled = true
 text = "[pulse]exodrifter +10👁[/pulse]"
+fit_content = true
+visible_characters_behavior = 1
+
+[node name="SubGift" type="MarginContainer" parent="Chatlog/MarginContainer/VBoxContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+script = ExtResource("9_cli07")
+
+[node name="Background" type="TextureRect" parent="Chatlog/MarginContainer/VBoxContainer/SubGift"]
+modulate = Color(0.627451, 0.12549, 0.941176, 1)
+layout_mode = 2
+texture = SubResource("GradientTexture1D_i5c4a")
+
+[node name="HBoxContainer" type="HBoxContainer" parent="Chatlog/MarginContainer/VBoxContainer/SubGift"]
+layout_mode = 2
+
+[node name="Icon" type="RichTextLabel" parent="Chatlog/MarginContainer/VBoxContainer/SubGift/HBoxContainer"]
+custom_minimum_size = Vector2(25, 0)
+layout_mode = 2
+bbcode_enabled = true
+text = "[center]📦[/center]"
+fit_content = true
+
+[node name="VBoxContainer" type="VBoxContainer" parent="Chatlog/MarginContainer/VBoxContainer/SubGift/HBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+alignment = 1
+
+[node name="Text" type="RichTextLabel" parent="Chatlog/MarginContainer/VBoxContainer/SubGift/HBoxContainer/VBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 0
+theme = ExtResource("5_omci2")
+bbcode_enabled = true
+text = "[wave]exodrifter t1 12mo[/wave]"
+fit_content = true
+visible_characters_behavior = 1
+
+[node name="SubMysteryGift" type="MarginContainer" parent="Chatlog/MarginContainer/VBoxContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+script = ExtResource("9_cli07")
+
+[node name="Background" type="TextureRect" parent="Chatlog/MarginContainer/VBoxContainer/SubMysteryGift"]
+modulate = Color(0.627451, 0.12549, 0.941176, 1)
+layout_mode = 2
+texture = SubResource("GradientTexture1D_i5c4a")
+
+[node name="HBoxContainer" type="HBoxContainer" parent="Chatlog/MarginContainer/VBoxContainer/SubMysteryGift"]
+layout_mode = 2
+
+[node name="Icon" type="RichTextLabel" parent="Chatlog/MarginContainer/VBoxContainer/SubMysteryGift/HBoxContainer"]
+custom_minimum_size = Vector2(25, 0)
+layout_mode = 2
+bbcode_enabled = true
+text = "[center]🚚[/center]"
+fit_content = true
+
+[node name="VBoxContainer" type="VBoxContainer" parent="Chatlog/MarginContainer/VBoxContainer/SubMysteryGift/HBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+alignment = 1
+
+[node name="Text" type="RichTextLabel" parent="Chatlog/MarginContainer/VBoxContainer/SubMysteryGift/HBoxContainer/VBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 0
+theme = ExtResource("5_omci2")
+bbcode_enabled = true
+text = "[wave]exodrifter +10🎁 t1[/wave]"
 fit_content = true
 visible_characters_behavior = 1
 
