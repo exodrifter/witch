@@ -179,6 +179,7 @@ script = ExtResource("7_eji7i")
 modulate = Color(0.627451, 0.12549, 0.941176, 1)
 layout_mode = 2
 texture = SubResource("GradientTexture1D_i5c4a")
+expand_mode = 1
 
 [node name="HBoxContainer" type="HBoxContainer" parent="Chatlog/MarginContainer/VBoxContainer/SubOrResub"]
 layout_mode = 2
@@ -214,6 +215,7 @@ script = ExtResource("8_bm25e")
 modulate = Color(0.870588, 0, 0.0235294, 1)
 layout_mode = 2
 texture = SubResource("GradientTexture1D_i5c4a")
+expand_mode = 1
 
 [node name="HBoxContainer" type="HBoxContainer" parent="Chatlog/MarginContainer/VBoxContainer/Raid"]
 layout_mode = 2
@@ -249,6 +251,7 @@ script = ExtResource("9_cli07")
 modulate = Color(0.627451, 0.12549, 0.941176, 1)
 layout_mode = 2
 texture = SubResource("GradientTexture1D_i5c4a")
+expand_mode = 1
 
 [node name="HBoxContainer" type="HBoxContainer" parent="Chatlog/MarginContainer/VBoxContainer/SubGift"]
 layout_mode = 2
@@ -284,6 +287,7 @@ script = ExtResource("10_wx4or")
 modulate = Color(0.627451, 0.12549, 0.941176, 1)
 layout_mode = 2
 texture = SubResource("GradientTexture1D_i5c4a")
+expand_mode = 1
 
 [node name="HBoxContainer" type="HBoxContainer" parent="Chatlog/MarginContainer/VBoxContainer/SubMysteryGift"]
 layout_mode = 2
@@ -319,6 +323,7 @@ script = ExtResource("11_7ji87")
 modulate = Color(1, 0.466667, 0, 1)
 layout_mode = 2
 texture = SubResource("GradientTexture1D_i5c4a")
+expand_mode = 1
 
 [node name="HBoxContainer" type="HBoxContainer" parent="Chatlog/MarginContainer/VBoxContainer/BitsBadgeTier"]
 layout_mode = 2
