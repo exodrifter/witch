@@ -53,8 +53,34 @@ impl WitchIRC {
     }
 
     #[func]
-    fn poll(&mut self) -> Array<Dictionary> {
-        self._poll().iter().map(conv_message).collect()
+    fn poll(&mut self) -> Array<Variant> {
+        vec_to_array(&self._poll())
+    }
+
+    #[func]
+    fn parse(source: String) -> Dictionary {
+        match WitchIRC::_parse(&source) {
+            Ok(msg) => conv_message(&msg),
+            Err(err) => dict! {
+                "type": "error",
+                "error": match err {
+                    IRCParseError::NoSpaceAfterTags =>
+                        "no_space_after_tags",
+                    IRCParseError::EmptyTagsDeclaration =>
+                        "empty_tags_declaration",
+                    IRCParseError::NoSpaceAfterPrefix =>
+                        "no_space_after_prefix",
+                    IRCParseError::EmptyPrefixDeclaration =>
+                        "empty_prefix_declaration",
+                    IRCParseError::MalformedCommand =>
+                        "malformed_command",
+                    IRCParseError::TooManySpacesInMiddleParams =>
+                        "too_many_spaces_in_middle_params",
+                    IRCParseError::NewlinesInMessage =>
+                        "newlines_in_message",
+                }
+            }
+        }
     }
 }
 
@@ -75,12 +101,19 @@ impl WitchIRC {
         self.client.join(channel)
     }
 
-    pub fn _poll(&mut self) -> Vec<ServerMessage> {
+    pub fn _poll(&mut self) -> Vec<String> {
         let mut vec = Vec::new();
         while let Ok(message) = self.incoming_messages.try_recv() {
-            vec.push(message);
+            vec.push(IRCMessage::from(message).as_raw_irc());
         }
         vec
+    }
+
+    pub fn _parse(source: &str) -> Result<ServerMessage, IRCParseError> {
+        match IRCMessage::parse(source) {
+            Ok(irc) => Ok(ServerMessage::try_from(irc).unwrap()),
+            Err(err) => Err(err),
+        }
     }
 }
 

@@ -3,12 +3,17 @@ extends Node
 
 const DUPE_FLAGS := DUPLICATE_SIGNALS | DUPLICATE_GROUPS | DUPLICATE_SCRIPTS
 
+enum Mode { Live, Replay }
+@export var mode: Mode = Mode.Live
 @export var channel: String = "exodrifter_"
+@export var replay_file: String = ""
 
 @onready var notif_player: AudioStreamPlayer = %NotifPlayer
 @onready var listen_player: AudioStreamPlayer = %ListenPlayer
 @onready var raid_player: SoundBankPlayer = %RaidPlayer
 @onready var sub_player: SoundBankPlayer = %SubPlayer
+@onready var replay_ended = %ReplayEnded
+@onready var replay_started = %ReplayStarted
 
 @onready var bits_prefab: GPUParticles2D = %BitParticles
 @onready var emotes_prefab: GPUParticles2D = %EmoteParticles
@@ -23,10 +28,22 @@ const DUPE_FLAGS := DUPLICATE_SIGNALS | DUPLICATE_GROUPS | DUPLICATE_SCRIPTS
 @onready var emotes_container: Node = emotes_prefab.get_parent()
 @onready var chat_container: Node = message_prefab.get_parent()
 
-var irc := WitchIRC.new()
 var spawned_messages: Array[Message] = []
 
+# Live variables
+var irc: WitchIRC
+var live_irc_log: FileAccess
+
+# Replay variables
+var replay_irc_log: FileAccess
+var next_replay_line: String
+var first_unix_time: float
+var elapsed: float
+
 func _ready():
+	replay_started.visible = false
+	replay_ended.visible = false
+
 	# Setup prefabs
 	bits_container.remove_child(bits_prefab)
 	emotes_container.remove_child(emotes_prefab)
@@ -37,13 +54,67 @@ func _ready():
 	chat_container.remove_child(sub_mystery_gift_prefab)
 	chat_container.remove_child(bits_badge_tier)
 
-	irc.join(channel)
+func _process(delta):
+	match mode:
+		Mode.Replay:
+			# Open the replay file if we haven't already
+			if replay_irc_log == null:
+				replay_started.get_parent().move_child(replay_started, 0)
+				replay_started.visible = true
 
-func _process(_delta):
-	var messages = irc.poll()
-	for message in messages:
-		process_message(message)
-		print(message)
+				replay_irc_log = FileAccess.open(replay_file, FileAccess.READ)
+				if replay_irc_log != null:
+					next_replay_line = replay_irc_log.get_line()
+					first_unix_time = float(next_replay_line.split(" ", true, 1)[0])
+				else:
+					replay_ended.get_parent().move_child(replay_ended, 0)
+					replay_ended.visible = true
+
+			# Replay lines
+			while not replay_irc_log.eof_reached():
+				var parts = next_replay_line.split(" ", true, 1)
+				var next_unix = int(parts[0])
+				var next_irc = parts[1]
+				if first_unix_time + elapsed >= next_unix:
+					var data = WitchIRC.parse(next_irc.rstrip("\n"))
+					process_message(data)
+					next_replay_line = replay_irc_log.get_line()
+				else:
+					break
+
+			# Show replay ended notice
+			if replay_irc_log.eof_reached():
+				replay_ended.get_parent().move_child(replay_ended, 0)
+				replay_ended.visible = true
+
+			elapsed += delta
+
+		Mode.Live:
+			# Connect if we haven't already
+			if irc == null:
+				irc = WitchIRC.new()
+				irc.join(channel)
+
+			# Make the log file if we haven't already
+			if live_irc_log == null:
+				var path = "user://{datetime}.txt".format({
+					"datetime":
+						Time.get_datetime_string_from_system(true)
+							.replace(":", "-")
+							.replace("T","-")
+				})
+				live_irc_log = FileAccess.open(path, FileAccess.WRITE)
+
+			# Get new messages
+			var messages = irc.poll()
+			for next_irc in messages:
+				var data = WitchIRC.parse(next_irc)
+				process_message(data)
+				live_irc_log.store_string("{time} {irc}\n".format({
+					"time": Time.get_unix_time_from_system(),
+					"irc": next_irc,
+				}))
+			live_irc_log.flush()
 
 func process_message(data: Dictionary) -> void:
 	match data.type:
@@ -66,6 +137,7 @@ func process_message(data: Dictionary) -> void:
 			chat_container.move_child(message, 0)
 			message.witch = self
 			message.data = data
+			spawned_messages.push_back(message)
 
 			spawn_bits(message.bits)
 
@@ -131,7 +203,7 @@ func process_clear_chat(data: Dictionary) -> void:
 		"user_timed_out":
 			for message in spawned_messages:
 				if message.channel_login == data.channel_login and \
-						message.user_login == data.action.user_login:
+						message.user_id == data.action.user_id:
 					message.modulate = Color.TRANSPARENT
 
 func process_clear_msg(data: Dictionary) -> void:

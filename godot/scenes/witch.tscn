@@ -21,18 +21,18 @@ colors = PackedColorArray(0, 0, 0, 1, 0, 0, 0, 1)
 gradient = SubResource("Gradient_k2i4l")
 width = 200
 
+[sub_resource type="Gradient" id="Gradient_x22jf"]
+colors = PackedColorArray(1, 1, 1, 1, 1, 1, 1, 1)
+
+[sub_resource type="GradientTexture1D" id="GradientTexture1D_i5c4a"]
+gradient = SubResource("Gradient_x22jf")
+
 [sub_resource type="Gradient" id="Gradient_kgqar"]
 colors = PackedColorArray(1, 1, 1, 1, 1, 1, 1, 1)
 
 [sub_resource type="GradientTexture1D" id="GradientTexture1D_mvfe0"]
 gradient = SubResource("Gradient_kgqar")
 width = 2
-
-[sub_resource type="Gradient" id="Gradient_x22jf"]
-colors = PackedColorArray(1, 1, 1, 1, 1, 1, 1, 1)
-
-[sub_resource type="GradientTexture1D" id="GradientTexture1D_i5c4a"]
-gradient = SubResource("Gradient_x22jf")
 
 [sub_resource type="CanvasItemMaterial" id="CanvasItemMaterial_2ttua"]
 particles_animation = true
@@ -102,6 +102,9 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 script = ExtResource("1_8stk4")
+mode = 1
+channel = "earend"
+replay_file = "user://2024-01-23-05-47-08.txt"
 
 [node name="Audio" type="Node" parent="."]
 
@@ -149,6 +152,88 @@ layout_mode = 2
 
 [node name="VBoxContainer" type="VBoxContainer" parent="Chatlog/MarginContainer"]
 layout_mode = 2
+
+[node name="ReplayEnded" type="MarginContainer" parent="Chatlog/MarginContainer/VBoxContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+
+[node name="Background" type="TextureRect" parent="Chatlog/MarginContainer/VBoxContainer/ReplayEnded"]
+modulate = Color(1, 1, 0, 1)
+layout_mode = 2
+texture = SubResource("GradientTexture1D_i5c4a")
+expand_mode = 1
+
+[node name="HBoxContainer" type="HBoxContainer" parent="Chatlog/MarginContainer/VBoxContainer/ReplayEnded"]
+layout_mode = 2
+
+[node name="Icon" type="RichTextLabel" parent="Chatlog/MarginContainer/VBoxContainer/ReplayEnded/HBoxContainer"]
+custom_minimum_size = Vector2(25, 0)
+layout_mode = 2
+bbcode_enabled = true
+text = "[center][color=#000]⚠[/color][/center]"
+fit_content = true
+
+[node name="MarginContainer" type="MarginContainer" parent="Chatlog/MarginContainer/VBoxContainer/ReplayEnded/HBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/margin_top = 2
+theme_override_constants/margin_bottom = 2
+
+[node name="VBoxContainer" type="VBoxContainer" parent="Chatlog/MarginContainer/VBoxContainer/ReplayEnded/HBoxContainer/MarginContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+alignment = 1
+
+[node name="Text" type="RichTextLabel" parent="Chatlog/MarginContainer/VBoxContainer/ReplayEnded/HBoxContainer/MarginContainer/VBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 0
+theme = ExtResource("5_omci2")
+bbcode_enabled = true
+text = "[color=#000]REPLAY ENDED[/color]"
+fit_content = true
+visible_characters_behavior = 1
+
+[node name="ReplayStarted" type="MarginContainer" parent="Chatlog/MarginContainer/VBoxContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+
+[node name="Background" type="TextureRect" parent="Chatlog/MarginContainer/VBoxContainer/ReplayStarted"]
+modulate = Color(1, 1, 0, 1)
+layout_mode = 2
+texture = SubResource("GradientTexture1D_i5c4a")
+expand_mode = 1
+
+[node name="HBoxContainer" type="HBoxContainer" parent="Chatlog/MarginContainer/VBoxContainer/ReplayStarted"]
+layout_mode = 2
+
+[node name="Icon" type="RichTextLabel" parent="Chatlog/MarginContainer/VBoxContainer/ReplayStarted/HBoxContainer"]
+custom_minimum_size = Vector2(25, 0)
+layout_mode = 2
+bbcode_enabled = true
+text = "[center][color=#000]⚠[/color][/center]"
+fit_content = true
+
+[node name="MarginContainer" type="MarginContainer" parent="Chatlog/MarginContainer/VBoxContainer/ReplayStarted/HBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/margin_top = 2
+theme_override_constants/margin_bottom = 2
+
+[node name="VBoxContainer" type="VBoxContainer" parent="Chatlog/MarginContainer/VBoxContainer/ReplayStarted/HBoxContainer/MarginContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+alignment = 1
+
+[node name="Text" type="RichTextLabel" parent="Chatlog/MarginContainer/VBoxContainer/ReplayStarted/HBoxContainer/MarginContainer/VBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 0
+theme = ExtResource("5_omci2")
+bbcode_enabled = true
+text = "[color=#000]REPLAY STARTED[/color]"
+fit_content = true
+visible_characters_behavior = 1
 
 [node name="Message" type="MarginContainer" parent="Chatlog/MarginContainer/VBoxContainer"]
 unique_name_in_owner = true

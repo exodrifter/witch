@@ -28,6 +28,14 @@ var message_id: String:
 			return "00000000-0000-0000-0000-000000000000"
 
 ## The login of the user who sent the message.
+var user_id: String:
+	get:
+		if data.has("sender") and data["sender"].has("id"):
+			return data["sender"]["id"]
+		else:
+			return ""
+
+## The login of the user who sent the message.
 var user_login: String:
 	get:
 		if data.has("sender") and data["sender"].has("login"):
