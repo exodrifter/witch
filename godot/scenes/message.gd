@@ -11,6 +11,14 @@ var data: Dictionary = {}:
 @onready var color_bar = $HBoxContainer/ColorBar
 @onready var text = $HBoxContainer/Text
 
+## The login of the channel this message was sent in.
+var channel_login: String:
+	get:
+		if data.has("channel_login"):
+			return data["channel_login"]
+		else:
+			return ""
+
 ## The UUID of the message.
 var message_id: String:
 	get:
@@ -18,6 +26,14 @@ var message_id: String:
 			return data["message_id"]
 		else:
 			return "00000000-0000-0000-0000-000000000000"
+
+## The login of the user who sent the message.
+var user_login: String:
+	get:
+		if data.has("sender") and data["sender"].has("login"):
+			return data["sender"]["login"]
+		else:
+			return ""
 
 ## The name of the user who sent the message.
 var user_name: String:
@@ -94,6 +110,12 @@ func _process(_delta) -> void:
 	if global_position.y > 720:
 		queue_free()
 
+func _exit_tree() -> void:
+	if is_instance_valid(witch):
+		var index = witch.spawned_messages.find(self)
+		if index != -1:
+			witch.spawned_messages.remove_at(index)
+
 func setup() -> void:
 	name = message_id
 	setup_color_bar()
@@ -163,7 +185,7 @@ func setup_text() -> void:
 				TwitchImageCache.ThemeMode.Dark,
 				TwitchImageCache.EmoteSize.Small
 			)
-			witch.process_emote(tex)
+			witch.spawn_emote(tex)
 			emitted_emotes = true
 
 # Like `append_text`, but parses both open AND close bbcode tags instead of just

@@ -100,7 +100,7 @@ fn conv_message(msg: &ServerMessage) -> Dictionary {
                     "user_id": user_id.to_variant(),
                 },
                 ClearChatAction::UserTimedOut { user_login, user_id, timeout_length } => dict! {
-                    "type": "user_banned",
+                    "type": "user_timed_out",
                     "user_login": user_login.to_variant(),
                     "user_id": user_id.to_variant(),
                     "timeout_length": timeout_length.as_secs(),

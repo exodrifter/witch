@@ -22,6 +22,7 @@ const DUPE_FLAGS := DUPLICATE_SIGNALS | DUPLICATE_GROUPS | DUPLICATE_SCRIPTS
 @onready var chat_container: Node = message_prefab.get_parent()
 
 var irc := WitchIRC.new()
+var spawned_messages: Array[Message] = []
 
 func _ready():
 	# Setup prefabs
@@ -44,6 +45,12 @@ func _process(_delta):
 
 func process_message(data: Dictionary) -> void:
 	match data.type:
+		"clear_chat":
+			process_clear_chat(data)
+
+		"clear_msg":
+			process_clear_msg(data)
+
 		"privmsg":
 			# Play the sound effect
 			match data.message_text:
@@ -58,7 +65,7 @@ func process_message(data: Dictionary) -> void:
 			message.witch = self
 			message.data = data
 
-			process_bits(message.bits)
+			spawn_bits(message.bits)
 
 		"user_notice":
 			match data.event.type:
@@ -108,7 +115,30 @@ func process_message(data: Dictionary) -> void:
 						message.witch = self
 						message.data = data
 
-func process_bits(bits: int) -> void:
+func process_clear_chat(data: Dictionary) -> void:
+	match data.action.type:
+		"chat_cleared":
+			for message in spawned_messages:
+				if message.channel_login == data.channel_login:
+					message.modulate = Color.TRANSPARENT
+		"user_banned":
+			for message in spawned_messages:
+				if message.channel_login == data.channel_login and \
+						message.user_login == data.action.user_login:
+					message.modulate = Color.TRANSPARENT
+		"user_timed_out":
+			for message in spawned_messages:
+				if message.channel_login == data.channel_login and \
+						message.user_login == data.action.user_login:
+					message.modulate = Color.TRANSPARENT
+
+func process_clear_msg(data: Dictionary) -> void:
+	for message in spawned_messages:
+		if message.channel_login == data.channel_login and \
+				message.message_id == data.message_id:
+			message.modulate = Color.TRANSPARENT
+
+func spawn_bits(bits: int) -> void:
 	if bits <= 0:
 		return
 
@@ -118,7 +148,7 @@ func process_bits(bits: int) -> void:
 	emitter.finished.connect(emitter.queue_free)
 	bits_container.add_child(emitter)
 
-func process_emote(emote: Texture2D) -> void:
+func spawn_emote(emote: Texture2D) -> void:
 	if emote == null:
 		return
 
