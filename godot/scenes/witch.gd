@@ -21,8 +21,7 @@ enum Mode { Live, Replay }
 @onready var sub_gift_prefab: SubGiftNotif = %SubGift
 @onready var sub_mystery_gift_prefab: SubMysteryGiftNotif = %SubMysteryGift
 @onready var bits_badge_tier_prefab: BitsBadgeTierNotif = %BitsBadgeTier
-@onready var warning_prefab: CustomNotif = %Warning
-@onready var clear_prefab: CustomNotif = %Clear
+@onready var notice_prefab: Notice = %Notice
 
 @onready var bits_container: Node = bits_prefab.get_parent()
 @onready var emotes_container: Node = emotes_prefab.get_parent()
@@ -51,14 +50,7 @@ func _ready():
 	chat_container.remove_child(sub_gift_prefab)
 	chat_container.remove_child(sub_mystery_gift_prefab)
 	chat_container.remove_child(bits_badge_tier_prefab)
-	chat_container.remove_child(warning_prefab)
-	chat_container.remove_child(clear_prefab)
-
-func spawn(prefab: Node) -> Node:
-	var message = prefab.duplicate(DUPE_FLAGS)
-	chat_container.add_child(message)
-	chat_container.move_child(message, 0)
-	return message
+	chat_container.remove_child(notice_prefab)
 
 func _process(delta):
 	match mode:
@@ -69,12 +61,17 @@ func _process(delta):
 				if replay_irc_log != null:
 					next_replay_line = replay_irc_log.get_line()
 					first_unix_time = float(next_replay_line.split(" ", true, 1)[0])
-					spawn(warning_prefab).text = \
-						"[color=#000]%s[/color]" % \
-							Time.get_datetime_string_from_unix_time(floori(first_unix_time))
+					spawn_notice(
+						"⟲", Time.get_datetime_string_from_unix_time(floori(first_unix_time)),
+						Color.YELLOW,
+						Color.BLACK
+					)
 				else:
 					replay_ended = true
-					spawn(warning_prefab).text = "[color=#000]REPLAY FAILED[/color]"
+					spawn_notice(
+						"⚠", "REPLAY FAILED",
+						Color.RED, Color.WHITE
+					)
 
 			# Replay lines
 			while not replay_irc_log.eof_reached():
@@ -91,7 +88,10 @@ func _process(delta):
 			# Show replay ended notice
 			if replay_irc_log.eof_reached() and not replay_ended:
 				replay_ended = true
-				spawn(warning_prefab).text = "[color=#000]REPLAY ENDED[/color]"
+				spawn_notice(
+					"⚠", "REPLAY ENDED",
+					Color.YELLOW, Color.BLACK
+				)
 
 			elapsed += delta
 
@@ -198,23 +198,32 @@ func process_message(data: Dictionary) -> void:
 func process_clear_chat(data: Dictionary) -> void:
 	match data.action.type:
 		"chat_cleared":
-			spawn(clear_prefab).text = "chat cleared"
+			spawn_notice(
+				"⌫", "chat cleared",
+				Color(.1, .1, .1), Color.WHITE
+			)
 			for message in spawned_messages:
 				if message.channel_login == data.channel_login:
 					message.modulate = Color.TRANSPARENT
 		"user_banned":
-			spawn(clear_prefab).text = "{user} banned".format({
-				"user": data.action.user_login,
-			})
+			spawn_notice(
+				"🚫", "{user} banned".format({
+					"user": data.action.user_login,
+				}),
+				Color(.1, .1, .1), Color.WHITE
+			)
 			for message in spawned_messages:
 				if message.channel_login == data.channel_login and \
 						message.user_login == data.action.user_login:
 					message.modulate = Color.TRANSPARENT
 		"user_timed_out":
-			spawn(clear_prefab).text = "{user} timeout {duration}s".format({
-				"user": data.action.user_login,
-				"duration": data.action.timeout_length,
-			})
+			spawn_notice(
+				"⏰", "{user} timeout {duration}s".format({
+					"user": data.action.user_login,
+					"duration": data.action.timeout_length,
+				}),
+				Color(.1, .1, .1), Color.WHITE
+			)
 			for message in spawned_messages:
 				if message.channel_login == data.channel_login and \
 						message.user_id == data.action.user_id:
@@ -225,6 +234,8 @@ func process_clear_msg(data: Dictionary) -> void:
 		if message.channel_login == data.channel_login and \
 				message.message_id == data.message_id:
 			message.modulate = Color.TRANSPARENT
+
+#region Spawners
 
 func spawn_bits(bits: int) -> void:
 	if bits <= 0:
@@ -245,3 +256,14 @@ func spawn_emote(emote: Texture2D) -> void:
 	emitter.emitting = true
 	emitter.finished.connect(emitter.queue_free)
 	emotes_container.add_child(emitter)
+
+func spawn_notice(icon: String, text: String, bg: Color, fg: Color) -> void:
+	var notice: Notice = notice_prefab.duplicate(DUPE_FLAGS)
+	chat_container.add_child(notice)
+	chat_container.move_child(notice, 0)
+	notice.icon = "[center]" + icon + "[/center]"
+	notice.text = text
+	notice.bg_color = bg
+	notice.fg_color = fg
+
+#endregion

@@ -11,9 +11,9 @@
 [ext_resource type="Texture2D" uid="uid://bap6j18harldy" path="res://textures/bits.png" id="7_fhvrn"]
 [ext_resource type="Script" path="res://scenes/notice_raid.gd" id="8_bm25e"]
 [ext_resource type="Script" path="res://scenes/notice_sub_gift.gd" id="9_cli07"]
-[ext_resource type="Script" path="res://scenes/notice_sub_mystery_gift.gd" id="10_wx4or"]
+[ext_resource type="Script" path="res://scenes/notice_mystery.gd" id="10_wx4or"]
 [ext_resource type="Script" path="res://scenes/notice_bits_badge.gd" id="11_7ji87"]
-[ext_resource type="Script" path="res://scenes/notice_custom.gd" id="13_febxf"]
+[ext_resource type="Script" path="res://scenes/notice.gd" id="13_febxf"]
 
 [sub_resource type="Gradient" id="Gradient_k2i4l"]
 colors = PackedColorArray(0, 0, 0, 1, 0, 0, 0, 1)
@@ -103,6 +103,8 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 script = ExtResource("1_8stk4")
+mode = 1
+replay_file = "user://timeout.txt"
 
 [node name="Audio" type="Node" parent="."]
 
@@ -381,81 +383,42 @@ text = "[wave]exodrifter 10000![/wave]"
 fit_content = true
 visible_characters_behavior = 1
 
-[node name="Warning" type="MarginContainer" parent="Chatlog/MarginContainer/VBoxContainer"]
+[node name="Notice" type="MarginContainer" parent="Chatlog/MarginContainer/VBoxContainer"]
 unique_name_in_owner = true
 layout_mode = 2
 script = ExtResource("13_febxf")
 
-[node name="Background" type="TextureRect" parent="Chatlog/MarginContainer/VBoxContainer/Warning"]
-modulate = Color(1, 1, 0, 1)
-layout_mode = 2
-texture = SubResource("GradientTexture1D_i5c4a")
-expand_mode = 1
-
-[node name="HBoxContainer" type="HBoxContainer" parent="Chatlog/MarginContainer/VBoxContainer/Warning"]
-layout_mode = 2
-
-[node name="Icon" type="RichTextLabel" parent="Chatlog/MarginContainer/VBoxContainer/Warning/HBoxContainer"]
-custom_minimum_size = Vector2(25, 0)
-layout_mode = 2
-bbcode_enabled = true
-text = "[center][color=#000]⚠[/color][/center]"
-fit_content = true
-
-[node name="MarginContainer" type="MarginContainer" parent="Chatlog/MarginContainer/VBoxContainer/Warning/HBoxContainer"]
-layout_mode = 2
-size_flags_horizontal = 3
-theme_override_constants/margin_top = 2
-theme_override_constants/margin_bottom = 2
-
-[node name="VBoxContainer" type="VBoxContainer" parent="Chatlog/MarginContainer/VBoxContainer/Warning/HBoxContainer/MarginContainer"]
-layout_mode = 2
-size_flags_horizontal = 3
-alignment = 1
-
-[node name="Text" type="RichTextLabel" parent="Chatlog/MarginContainer/VBoxContainer/Warning/HBoxContainer/MarginContainer/VBoxContainer"]
-layout_mode = 2
-size_flags_horizontal = 3
-size_flags_vertical = 0
-theme = ExtResource("5_omci2")
-bbcode_enabled = true
-text = "[color=#000]REPLAY ENDED[/color]"
-fit_content = true
-visible_characters_behavior = 1
-
-[node name="Clear" type="MarginContainer" parent="Chatlog/MarginContainer/VBoxContainer"]
-unique_name_in_owner = true
-layout_mode = 2
-script = ExtResource("13_febxf")
-
-[node name="Background" type="TextureRect" parent="Chatlog/MarginContainer/VBoxContainer/Clear"]
+[node name="Background" type="TextureRect" parent="Chatlog/MarginContainer/VBoxContainer/Notice"]
 modulate = Color(0.180392, 0.180392, 0.180392, 1)
 layout_mode = 2
 texture = SubResource("GradientTexture1D_i5c4a")
 expand_mode = 1
 
-[node name="HBoxContainer" type="HBoxContainer" parent="Chatlog/MarginContainer/VBoxContainer/Clear"]
-layout_mode = 2
-
-[node name="Icon" type="RichTextLabel" parent="Chatlog/MarginContainer/VBoxContainer/Clear/HBoxContainer"]
-custom_minimum_size = Vector2(25, 0)
-layout_mode = 2
-bbcode_enabled = true
-text = "[center]🚫[/center]"
-fit_content = true
-
-[node name="MarginContainer" type="MarginContainer" parent="Chatlog/MarginContainer/VBoxContainer/Clear/HBoxContainer"]
+[node name="MarginContainer" type="MarginContainer" parent="Chatlog/MarginContainer/VBoxContainer/Notice"]
 layout_mode = 2
 size_flags_horizontal = 3
 theme_override_constants/margin_top = 2
 theme_override_constants/margin_bottom = 2
 
-[node name="VBoxContainer" type="VBoxContainer" parent="Chatlog/MarginContainer/VBoxContainer/Clear/HBoxContainer/MarginContainer"]
+[node name="HBoxContainer" type="HBoxContainer" parent="Chatlog/MarginContainer/VBoxContainer/Notice/MarginContainer"]
+layout_mode = 2
+
+[node name="IconContainer" type="VBoxContainer" parent="Chatlog/MarginContainer/VBoxContainer/Notice/MarginContainer/HBoxContainer"]
+layout_mode = 2
+
+[node name="Icon" type="RichTextLabel" parent="Chatlog/MarginContainer/VBoxContainer/Notice/MarginContainer/HBoxContainer/IconContainer"]
+custom_minimum_size = Vector2(25, 0)
+layout_mode = 2
+bbcode_enabled = true
+text = "[center]a[/center]"
+fit_content = true
+
+[node name="TextContainer" type="VBoxContainer" parent="Chatlog/MarginContainer/VBoxContainer/Notice/MarginContainer/HBoxContainer"]
 layout_mode = 2
 size_flags_horizontal = 3
 alignment = 1
 
-[node name="Text" type="RichTextLabel" parent="Chatlog/MarginContainer/VBoxContainer/Clear/HBoxContainer/MarginContainer/VBoxContainer"]
+[node name="Text" type="RichTextLabel" parent="Chatlog/MarginContainer/VBoxContainer/Notice/MarginContainer/HBoxContainer/TextContainer"]
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 0
