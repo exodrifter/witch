@@ -238,7 +238,7 @@ size_flags_horizontal = 3
 size_flags_vertical = 0
 theme = ExtResource("5_omci2")
 bbcode_enabled = true
-text = "[pulse]exodrifter +10👁[/pulse]"
+text = "[wave]exodrifter +10👁[/wave]"
 fit_content = true
 visible_characters_behavior = 1
 

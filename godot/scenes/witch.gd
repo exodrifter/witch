@@ -34,7 +34,7 @@ func _ready():
 	chat_container.remove_child(sub_mystery_gift_prefab)
 	chat_container.remove_child(bits_badge_tier)
 
-	irc.join("exodrifter_")
+	irc.join("hasanabi")
 
 func _process(_delta):
 	var messages = irc.poll()

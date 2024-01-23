@@ -1,7 +1,7 @@
 class_name RaidNotif
 extends MarginContainer
 
-const template: String = "[pulse]{username} +{viewer_count}👁[/pulse]"
+const template: String = "[wave]{username} +{viewer_count}👁[/wave]"
 
 var data: Dictionary = {}:
 	set(value):
