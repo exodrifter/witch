@@ -2,19 +2,14 @@ extends RichTextLabel
 
 const TIP_SECONDS: float = 30
 
-@export var tips_path: String = "user://tips.txt"
-
-var tips: Array[String] = []
+var tips: Array[String] = [
+	"discord.gg/arqFQVt",
+	"!dont !listen",
+]
 var current_index: int
 var elapsed: float
 
 func _ready():
-	var file := FileAccess.open(tips_path, FileAccess.READ)
-	while not file.eof_reached():
-		var tip = file.get_line().strip_edges()
-		if tip != "":
-			tips.push_back(tip)
-
 	if tips.size() == 0:
 		queue_free()
 	else:
