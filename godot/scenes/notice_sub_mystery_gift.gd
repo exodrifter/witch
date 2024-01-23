@@ -13,7 +13,7 @@ var data: Dictionary = {}:
 		data = value
 		setup()
 
-@onready var text = $HBoxContainer/VBoxContainer/Text
+@onready var text = $HBoxContainer/MarginContainer/VBoxContainer/Text
 
 ## The UUID of the message.
 var message_id: String:
