@@ -93,7 +93,8 @@ func _process(delta):
 
 			# Make the log file if we haven't already
 			if live_irc_log == null:
-				var path = "user://{datetime}.txt".format({
+				DirAccess.make_dir_absolute("user://replay")
+				var path = "user://replay/{datetime}.txt".format({
 					"datetime":
 						Time.get_datetime_string_from_system(true)
 							.replace(":", "-")
