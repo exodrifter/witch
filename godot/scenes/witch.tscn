@@ -337,4 +337,5 @@ amount = 1
 process_material = SubResource("ParticleProcessMaterial_xgnj4")
 lifetime = 4.0
 one_shot = true
+explosiveness = 1.0
 fixed_fps = 60

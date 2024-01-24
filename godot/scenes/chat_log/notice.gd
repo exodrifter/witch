@@ -2,7 +2,7 @@
 class_name Notice
 extends MarginContainer
 
-@onready var _background: TextureRect = $Background
+@onready var _background: ColorRect = $Background
 @onready var _icon: RichTextLabel = $MarginContainer/HBoxContainer/IconContainer/Icon
 @onready var _text: RichTextLabel = $MarginContainer/HBoxContainer/TextContainer/Text
 

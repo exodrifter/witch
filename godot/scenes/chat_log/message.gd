@@ -1,8 +1,6 @@
 class_name Message
 extends Control
 
-var witch: Witch = null
-var emitted_emotes: bool = false
 var data: Dictionary = {}:
 	set(value):
 		data = value
@@ -183,15 +181,6 @@ func setup_text() -> void:
 		TwitchImageCache.emote_loaded.connect(setup)
 	if not missing_emotes and TwitchImageCache.emote_loaded.is_connected(setup):
 		TwitchImageCache.emote_loaded.disconnect(setup)
-	if not missing_emotes and not emitted_emotes and witch != null:
-		for emote in data["emotes"] if data.has("emotes") else []:
-			var tex = TwitchImageCache.get_emote(
-				emote["id"],
-				TwitchImageCache.ThemeMode.Dark,
-				TwitchImageCache.EmoteSize.Small
-			)
-			witch.spawn_emote(tex)
-			emitted_emotes = true
 
 # Like `append_text`, but parses both open AND close bbcode tags instead of just
 # open tags.

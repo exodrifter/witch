@@ -30,9 +30,8 @@ func _add_entry(prefab: Node) -> Node:
 	return entry
 
 ## Adds a message to the chat log.
-func add_message(data: Dictionary, witch: Witch) -> void:
+func add_message(data: Dictionary) -> void:
 	var message: Message = _add_entry(message_prefab)
-	message.witch = witch
 	message.data = data
 
 ## Adds a notice to the chat log.

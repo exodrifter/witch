@@ -108,6 +108,8 @@ func _process(delta):
 				}))
 			live_irc_log.flush()
 
+	spawn_emotes()
+
 #region Message Processing
 
 func process_message(data: Dictionary) -> void:
@@ -128,7 +130,8 @@ func process_message(data: Dictionary) -> void:
 				_:
 					notif_player.play()
 
-			chat_log.add_message(data, self)
+			chat_log.add_message(data)
+			queue_emotes(data)
 
 			if data.has("bits") and data.bits != null:
 				spawn_bits(data.bits)
@@ -227,7 +230,8 @@ func process_notice(data: Dictionary) -> void:
 			if data.has("message_text") and \
 					data["message_text"] != null and \
 					data["message_text"] != "":
-				chat_log.add_message(data, self)
+				chat_log.add_message(data)
+				queue_emotes(data)
 
 #endregion
 
@@ -243,12 +247,40 @@ func spawn_bits(bits: int) -> void:
 	emitter.finished.connect(emitter.queue_free)
 	bits_container.add_child(emitter)
 
-func spawn_emote(emote: Texture2D) -> void:
+var emotes_to_spawn: Dictionary = {}
+
+func queue_emotes(data: Dictionary) -> void:
+	if not data.has("emotes"):
+		return
+
+	for emote in data["emotes"]:
+		if emotes_to_spawn.has(emote["id"]):
+			emotes_to_spawn[emote["id"]] += 1
+		else:
+			emotes_to_spawn[emote["id"]] = 1
+
+func spawn_emotes() -> void:
+	var to_remove = []
+	for emote_id in emotes_to_spawn:
+		var tex = TwitchImageCache.get_emote(
+			emote_id,
+			TwitchImageCache.ThemeMode.Dark,
+			TwitchImageCache.EmoteSize.Small
+		)
+		if tex != null:
+			spawn_emote(tex, emotes_to_spawn[emote_id])
+			to_remove.push_back(emote_id)
+
+	for emote_id in to_remove:
+		emotes_to_spawn.erase(emote_id)
+
+func spawn_emote(emote: Texture2D, amount: int) -> void:
 	if emote == null:
 		return
 
 	var emitter: GPUParticles2D = emotes_prefab.duplicate(DUPE_FLAGS)
 	emitter.texture = emote
+	emitter.amount = amount
 	emitter.emitting = true
 	emitter.finished.connect(emitter.queue_free)
 	emotes_container.add_child(emitter)
