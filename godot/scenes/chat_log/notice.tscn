@@ -1,7 +1,7 @@
 [gd_scene load_steps=3 format=3 uid="uid://cslf155k5yr4i"]
 
 [ext_resource type="Script" path="res://scenes/chat_log/notice.gd" id="1_nsi3k"]
-[ext_resource type="Theme" uid="uid://omkl8qh717w8" path="res://default_theme.tres" id="2_ewsm5"]
+[ext_resource type="Theme" uid="uid://omkl8qh717w8" path="res://scenes/theme.tres" id="2_ewsm5"]
 
 [node name="Notice" type="MarginContainer"]
 offset_right = 200.0

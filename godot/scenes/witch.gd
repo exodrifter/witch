@@ -13,7 +13,7 @@ enum Mode { Live, Replay }
 @onready var sub_player: SoundBankPlayer = %SubPlayer
 @onready var chat_log: ChatLog = $ChatLog
 
-@onready var bits_prefab := preload("res://scenes/bit_particles.tscn")
+@onready var bits_prefab := preload("res://scenes/bit_particles/bit_particles.tscn")
 @onready var emotes_prefab := preload("res://scenes/emote_particles.tscn")
 
 # Live variables

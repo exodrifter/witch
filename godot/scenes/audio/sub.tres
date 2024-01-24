@@ -1,0 +1,15 @@
+[gd_resource type="Resource" script_class="SoundBank" load_steps=10 format=3 uid="uid://dvxm5r8725qsl"]
+
+[ext_resource type="Script" path="res://code/sound_bank.gd" id="1_k27es"]
+[ext_resource type="AudioStream" uid="uid://80ud3aw8hctx" path="res://scenes/audio/sub/sub-1.wav" id="2_to4qg"]
+[ext_resource type="AudioStream" uid="uid://bd3jnilj3xapm" path="res://scenes/audio/sub/sub-2.wav" id="3_pbvmg"]
+[ext_resource type="AudioStream" uid="uid://bpqurlswtuxpn" path="res://scenes/audio/sub/sub-3.wav" id="4_0x7wq"]
+[ext_resource type="AudioStream" uid="uid://bmukrldnl52o3" path="res://scenes/audio/sub/sub-4.wav" id="5_l0noa"]
+[ext_resource type="AudioStream" uid="uid://c7ywn0vwukly3" path="res://scenes/audio/sub/sub-5.wav" id="6_ofdik"]
+[ext_resource type="AudioStream" uid="uid://dxq3sy0ihssph" path="res://scenes/audio/sub/sub-6.wav" id="7_b1pje"]
+[ext_resource type="AudioStream" uid="uid://dfq7fcqxv1jed" path="res://scenes/audio/sub/sub-7.wav" id="8_vu3uw"]
+[ext_resource type="AudioStream" uid="uid://dvfc1sn7in8my" path="res://scenes/audio/sub/sub-8.wav" id="9_rkbw6"]
+
+[resource]
+script = ExtResource("1_k27es")
+sounds = Array[AudioStream]([ExtResource("2_to4qg"), ExtResource("3_pbvmg"), ExtResource("4_0x7wq"), ExtResource("5_l0noa"), ExtResource("6_ofdik"), ExtResource("7_b1pje"), ExtResource("8_vu3uw"), ExtResource("9_rkbw6")])

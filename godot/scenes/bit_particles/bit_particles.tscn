@@ -1,0 +1,52 @@
+[gd_scene load_steps=8 format=3 uid="uid://blstea2p7abro"]
+
+[ext_resource type="Texture2D" uid="uid://bap6j18harldy" path="res://scenes/bit_particles/bits.png" id="1_ofc6m"]
+
+[sub_resource type="CanvasItemMaterial" id="CanvasItemMaterial_2ttua"]
+particles_animation = true
+particles_anim_h_frames = 2
+particles_anim_v_frames = 1
+particles_anim_loop = false
+
+[sub_resource type="Curve" id="Curve_n227n"]
+_data = [Vector2(0, 0), 0.0, 0.0, 0, 0, Vector2(0.0979827, 1), 0.0, 0.0, 0, 0, Vector2(0.899135, 1), 0.0, 0.0, 0, 0, Vector2(1, 0), 0.0, 0.0, 0, 0]
+point_count = 4
+
+[sub_resource type="CurveTexture" id="CurveTexture_51hbv"]
+curve = SubResource("Curve_n227n")
+
+[sub_resource type="Curve" id="Curve_w2wfl"]
+max_value = 0.5
+_data = [Vector2(0, 0), 0.0, 0.0, 0, 0, Vector2(1, 0.5), 0.0, 0.0, 0, 0]
+point_count = 2
+
+[sub_resource type="CurveTexture" id="CurveTexture_uu1nj"]
+curve = SubResource("Curve_w2wfl")
+
+[sub_resource type="ParticleProcessMaterial" id="ParticleProcessMaterial_4lsva"]
+lifetime_randomness = 0.2
+particle_flag_disable_z = true
+emission_shape = 3
+emission_box_extents = Vector3(600, 40, 1)
+angle_min = -720.0
+angle_max = 720.0
+angle_curve = SubResource("CurveTexture_uu1nj")
+direction = Vector3(0, -1, 0)
+flatness = 1.0
+initial_velocity_min = 150.0
+initial_velocity_max = 150.0
+gravity = Vector3(0, 150, 0)
+alpha_curve = SubResource("CurveTexture_51hbv")
+anim_offset_max = 1.0
+
+[node name="BitParticles" type="GPUParticles2D"]
+modulate = Color(0.101961, 1, 0, 1)
+material = SubResource("CanvasItemMaterial_2ttua")
+position = Vector2(640, 680)
+emitting = false
+amount = 10
+process_material = SubResource("ParticleProcessMaterial_4lsva")
+texture = ExtResource("1_ofc6m")
+lifetime = 3.0
+one_shot = true
+fixed_fps = 60

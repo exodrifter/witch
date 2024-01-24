@@ -1,7 +1,7 @@
 [gd_scene load_steps=3 format=3 uid="uid://cb8l6yk61o84v"]
 
 [ext_resource type="Script" path="res://scenes/chat_log/message.gd" id="1_dwojp"]
-[ext_resource type="Theme" uid="uid://omkl8qh717w8" path="res://default_theme.tres" id="2_m73xu"]
+[ext_resource type="Theme" uid="uid://omkl8qh717w8" path="res://scenes/theme.tres" id="2_m73xu"]
 
 [node name="Message" type="HBoxContainer"]
 offset_right = 200.0

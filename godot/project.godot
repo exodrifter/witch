@@ -26,12 +26,8 @@ window/per_pixel_transparency/allowed=true
 [file_customization]
 
 folder_colors={
-"res://audio/": "green",
 "res://code/": "gray",
-"res://fonts/": "green",
-"res://gdext/": "gray",
-"res://scenes/": "purple",
-"res://textures/": "green"
+"res://scenes/": "purple"
 }
 
 [rendering]
