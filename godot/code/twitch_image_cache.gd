@@ -12,14 +12,19 @@ var tasks: Array[Dictionary] = []
 var cache_path: String
 var cache: Dictionary
 
-func _init(path: String) -> void:
-	client = HTTPClient.new()
-	client.connect_to_host(URL)
+func _init(path: String, use_http: bool) -> void:
+	if use_http:
+		client = HTTPClient.new()
+		client.connect_to_host(URL)
+
 	if not path.ends_with("/"):
 		path += "/"
 	cache_path = path
 
 func _process(_delta) -> void:
+	if client == null:
+		return
+
 	client.poll()
 
 	var status = client.get_status()
@@ -109,8 +114,8 @@ func get_emote(emote_id: String, theme: ThemeMode, size: EmoteSize) -> Texture2D
 		cache[task] = texture
 		return texture
 
-	# Add the task to the queue
-	if tasks.find(task) == -1:
+	# Add the task to the queue if we are using an HTTP client
+	if client != null and tasks.find(task) == -1:
 		tasks.append(task)
 	return null
 

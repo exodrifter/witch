@@ -59,7 +59,7 @@ func _ready():
 					var cache = ImageCache.new(
 						"user://replay/{directory}/images/".format({
 							"directory": directory
-						})
+						}), false
 					)
 					cache.name = "Cache_" + directory
 					add_child(cache)
@@ -93,7 +93,7 @@ func _process(delta):
 				if not replay.ends_with("/"):
 					replay += "/"
 				replay_irc_log = FileAccess.open(replay + "replay.txt", FileAccess.READ)
-				replay_image_cache = ImageCache.new(replay + "images")
+				replay_image_cache = ImageCache.new(replay + "images", false)
 				replay_image_cache.name = "ReplayCache"
 				add_child(replay_image_cache)
 				if replay_irc_log != null:
@@ -153,7 +153,7 @@ func _process(delta):
 							.replace("T","-")
 				})
 				DirAccess.make_dir_recursive_absolute(folder)
-				live_image_cache = ImageCache.new(folder + "images/")
+				live_image_cache = ImageCache.new(folder + "images/", true)
 				live_image_cache.name = "LiveImageCache"
 				add_child(live_image_cache)
 				live_irc_log = FileAccess.open(folder + "replay.txt", FileAccess.WRITE)
