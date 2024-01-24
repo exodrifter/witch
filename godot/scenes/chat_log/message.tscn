@@ -1,13 +1,17 @@
-[gd_scene load_steps=3 format=3 uid="uid://cb8l6yk61o84v"]
+[gd_scene load_steps=4 format=3 uid="uid://cb8l6yk61o84v"]
 
 [ext_resource type="Script" path="res://scenes/chat_log/message.gd" id="1_dwojp"]
-[ext_resource type="Theme" uid="uid://omkl8qh717w8" path="res://scenes/theme.tres" id="2_m73xu"]
+[ext_resource type="Theme" uid="uid://omkl8qh717w8" path="res://scenes/theme.tres" id="2_1enfj"]
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_a1ile"]
+content_margin_left = 3.0
 
 [node name="Message" type="HBoxContainer"]
 offset_right = 200.0
 offset_bottom = 255.0
 size_flags_horizontal = 3
 size_flags_vertical = 0
+theme_override_constants/separation = 0
 script = ExtResource("1_dwojp")
 
 [node name="ColorBar" type="ColorRect" parent="."]
@@ -18,7 +22,8 @@ color = Color(1, 0, 0, 1)
 [node name="Text" type="RichTextLabel" parent="."]
 layout_mode = 2
 size_flags_horizontal = 3
-theme = ExtResource("2_m73xu")
+theme = ExtResource("2_1enfj")
+theme_override_styles/normal = SubResource("StyleBoxEmpty_a1ile")
 text = "exodrifter: Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Urna duis convallis convallis tellus id interdum velit. Vulputate enim nulla aliquet porttitor lacus luctus. Malesuada bibendum arcu vitae elementum."
 fit_content = true
 visible_characters_behavior = 1

@@ -3,6 +3,8 @@ class_name ChatLog
 extends Node
 
 @onready var chat_container: Container = $Container
+
+@onready var announcement_prefab := preload("res://scenes/chat_log/announcement.tscn")
 @onready var message_prefab := preload("res://scenes/chat_log/message.tscn")
 @onready var notice_prefab := preload("res://scenes/chat_log/notice.tscn")
 
@@ -23,6 +25,14 @@ func _add_entry(prefab: PackedScene) -> Node:
 	entries[entry.get_instance_id()] = entry
 
 	return entry
+
+## Adds an announcement to the chat log.
+func add_announcement(header: String, text: String, color: Color) -> Entry:
+	var announcement: Announcement = _add_entry(announcement_prefab)
+	announcement.header = header
+	announcement.text = text
+	announcement.color = color
+	return announcement
 
 ## Adds a message to the chat log.
 func add_message(data: Dictionary, cache: ImageCache) -> Entry:

@@ -181,23 +181,8 @@ func process_message(data: Dictionary, cache: ImageCache, silent: bool) -> void:
 			chat_log.remove_by_id(data.channel_login, data.message_id)
 		"join":
 			process_join(data)
-
 		"privmsg":
-			chat_log.add_message(data, cache).setup_with_privmsg(data)
-
-			if not silent:
-				match data.message_text.split(" ", true, 1)[0]:
-					"!listen":
-						listen_player.play()
-					"!don't":
-						crash_player.play()
-					_:
-						notif_player.play()
-
-				queue_emotes(data)
-				if data.has("bits") and data.bits != null:
-					spawn_bits(data.bits)
-
+			process_privmsg(data, cache, silent)
 		"user_notice":
 			process_user_notice(data, cache, silent)
 
@@ -246,7 +231,24 @@ func process_join(data: Dictionary) -> void:
 	)
 	notice.channel_login = data.channel_login
 
+func process_privmsg(data: Dictionary, cache: ImageCache, silent: bool) -> void:
+	chat_log.add_message(data, cache).setup_with_privmsg(data)
+
+	if not silent:
+		match data.message_text.split(" ", true, 1)[0]:
+			"!listen":
+				listen_player.play()
+			"!don't":
+				crash_player.play()
+			_:
+				notif_player.play()
+
+		queue_emotes(data)
+		if data.has("bits") and data.bits != null:
+			spawn_bits(data.bits)
+
 func process_user_notice(data: Dictionary, cache: ImageCache, silent: bool) -> void:
+	print(data)
 	match data.event.type:
 		"sub_or_resub":
 			if not silent:
@@ -306,6 +308,29 @@ func process_user_notice(data: Dictionary, cache: ImageCache, silent: bool) -> v
 				}),
 				Color.PURPLE, Color.WHITE
 			).setup_with_user_notice(data)
+		"unknown":
+			if data.source.tags.has("msg-id") and \
+					data.source.tags["msg-id"] == "announcement":
+				var color = Color.TRANSPARENT
+				match data.source.tags["msg-param-color"]:
+					"PRIMARY":
+						color = Color(0.471, 0.435, 0.494) # TODO: Use channel color
+					"BLUE":
+						color = Color.DARK_BLUE
+					"GREEN":
+						color = Color.DARK_GREEN
+					"ORANGE":
+						color = Color.DARK_ORANGE
+					"PURPLE":
+						color = Color.PURPLE
+				chat_log.add_announcement(
+					data.sender.name,
+					data.message_text,
+					color
+				).setup_with_user_notice(data)
+				if not silent:
+					notif_player.play() # TODO: Announcement sound
+					queue_emotes(data)
 		_:
 			# Treat unknown events like messages
 			if data.has("message_text") and \
