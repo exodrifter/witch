@@ -4,7 +4,7 @@ extends Node
 enum Mode { Live, Replay }
 @export var mode: Mode = Mode.Live
 @export var channel: String = "exodrifter_"
-@export var replay_file: String = ""
+@export var replay: String = ""
 
 @onready var crash_player: AudioStreamPlayer = %CrashPlayer
 @onready var listen_player: AudioStreamPlayer = %ListenPlayer
@@ -19,9 +19,11 @@ enum Mode { Live, Replay }
 # Live variables
 var irc: WitchIRC
 var live_irc_log: FileAccess
+var live_image_cache: ImageCache
 
 # Replay variables
 var replay_irc_log: FileAccess
+var replay_image_cache: ImageCache
 var next_replay_line: String
 var first_unix_time: float
 var replay_ended: bool
@@ -38,29 +40,43 @@ func _ready():
 			var last_timestamp = null
 
 			# Load all replays from the last 24 hours
-			var files = DirAccess.get_files_at("user://replay")
-			for file in files:
-				var file_parts = file.split("-")
+			var directories = DirAccess.get_directories_at("user://replay")
+			for directory in directories:
+				var directory_parts = directory.split("-")
 				var timestamp = Time.get_unix_time_from_datetime_dict({
-					"year": file_parts[0],
-					"month": file_parts[1],
-					"day": file_parts[2],
-					"hour": file_parts[3],
-					"minute": file_parts[4],
-					"second": file_parts[5],
+					"year": directory_parts[0],
+					"month": directory_parts[1],
+					"day": directory_parts[2],
+					"hour": directory_parts[3],
+					"minute": directory_parts[4],
+					"second": directory_parts[5],
+				})
+				var replay_path = "user://replay/{directory}/replay.txt".format({
+					"directory": directory
 				})
 
-				if cutoff <= timestamp:
-					var replay = FileAccess.open("user://replay/" + file, FileAccess.READ)
-					while not replay.eof_reached():
-						var line = replay.get_line()
+				if cutoff <= timestamp and FileAccess.file_exists(replay_path):
+					var cache = ImageCache.new(
+						"user://replay/{directory}/images/".format({
+							"directory": directory
+						})
+					)
+					cache.name = "Cache_" + directory
+					add_child(cache)
+					var replay_file = FileAccess.open(
+						replay_path,
+						FileAccess.READ
+					)
+
+					while not replay_file.eof_reached():
+						var line = replay_file.get_line()
 						if line == "":
 							continue
 						var parts = line.split(" ", true, 1)
 						last_timestamp = float(parts[0])
 						var next_irc = parts[1]
 						var data = WitchIRC.parse(next_irc)
-						process_message(data, true)
+						process_message(data, cache, true)
 
 			if last_timestamp != null:
 				chat_log.add_notice(
@@ -74,7 +90,12 @@ func _process(delta):
 		Mode.Replay:
 			# Open the replay file if we haven't already
 			if replay_irc_log == null:
-				replay_irc_log = FileAccess.open(replay_file, FileAccess.READ)
+				if not replay.ends_with("/"):
+					replay += "/"
+				replay_irc_log = FileAccess.open(replay + "replay.txt", FileAccess.READ)
+				replay_image_cache = ImageCache.new(replay + "images")
+				replay_image_cache.name = "ReplayCache"
+				add_child(replay_image_cache)
 				if replay_irc_log != null:
 					next_replay_line = replay_irc_log.get_line()
 					first_unix_time = float(next_replay_line.split(" ", true, 1)[0])
@@ -100,10 +121,12 @@ func _process(delta):
 				var next_irc = parts[1]
 				if first_unix_time + elapsed >= next_unix:
 					var data = WitchIRC.parse(next_irc)
-					process_message(data, false)
+					process_message(data, replay_image_cache, false)
 					next_replay_line = replay_irc_log.get_line()
 				else:
 					break
+
+			spawn_emotes(replay_image_cache)
 
 			# Show replay ended notice
 			if replay_irc_log.eof_reached():
@@ -123,31 +146,34 @@ func _process(delta):
 
 			# Make the log file if we haven't already
 			if live_irc_log == null:
-				DirAccess.make_dir_absolute("user://replay")
-				var path = "user://replay/{datetime}.txt".format({
+				var folder = "user://replay/{datetime}/".format({
 					"datetime":
 						Time.get_datetime_string_from_system(true)
 							.replace(":", "-")
 							.replace("T","-")
 				})
-				live_irc_log = FileAccess.open(path, FileAccess.WRITE)
+				DirAccess.make_dir_recursive_absolute(folder)
+				live_image_cache = ImageCache.new(folder + "images/")
+				live_image_cache.name = "LiveImageCache"
+				add_child(live_image_cache)
+				live_irc_log = FileAccess.open(folder + "replay.txt", FileAccess.WRITE)
 
 			# Get new messages
 			var messages = irc.poll()
 			for next_irc in messages:
 				var data = WitchIRC.parse(next_irc)
-				process_message(data, false)
+				process_message(data, live_image_cache, false)
 				live_irc_log.store_string("{time} {irc}\n".format({
 					"time": Time.get_unix_time_from_system(),
 					"irc": next_irc,
 				}))
 			live_irc_log.flush()
 
-	spawn_emotes()
+			spawn_emotes(live_image_cache)
 
 #region Message Processing
 
-func process_message(data: Dictionary, silent: bool) -> void:
+func process_message(data: Dictionary, cache: ImageCache, silent: bool) -> void:
 	match data.type:
 		"clear_chat":
 			process_clear_chat(data)
@@ -157,7 +183,7 @@ func process_message(data: Dictionary, silent: bool) -> void:
 			process_join(data)
 
 		"privmsg":
-			chat_log.add_message(data).setup_with_privmsg(data)
+			chat_log.add_message(data, cache).setup_with_privmsg(data)
 
 			if not silent:
 				match data.message_text.split(" ", true, 1)[0]:
@@ -173,7 +199,7 @@ func process_message(data: Dictionary, silent: bool) -> void:
 					spawn_bits(data.bits)
 
 		"user_notice":
-			process_user_notice(data, silent)
+			process_user_notice(data, cache, silent)
 
 func process_clear_chat(data: Dictionary) -> void:
 	match data.action.type:
@@ -220,7 +246,7 @@ func process_join(data: Dictionary) -> void:
 	)
 	notice.channel_login = data.channel_login
 
-func process_user_notice(data: Dictionary, silent: bool) -> void:
+func process_user_notice(data: Dictionary, cache: ImageCache, silent: bool) -> void:
 	match data.event.type:
 		"sub_or_resub":
 			if not silent:
@@ -285,7 +311,7 @@ func process_user_notice(data: Dictionary, silent: bool) -> void:
 			if data.has("message_text") and \
 					data["message_text"] != null and \
 					data["message_text"] != "":
-				chat_log.add_message(data).setup_with_user_notice(data)
+				chat_log.add_message(data, cache).setup_with_user_notice(data)
 				if not silent:
 					queue_emotes(data)
 
@@ -315,13 +341,13 @@ func queue_emotes(data: Dictionary) -> void:
 		else:
 			emotes_to_spawn[emote["id"]] = 1
 
-func spawn_emotes() -> void:
+func spawn_emotes(cache: ImageCache) -> void:
 	var to_remove = []
 	for emote_id in emotes_to_spawn:
-		var tex = TwitchImageCache.get_emote(
+		var tex = cache.get_emote(
 			emote_id,
-			TwitchImageCache.ThemeMode.Dark,
-			TwitchImageCache.EmoteSize.Small
+			ImageCache.ThemeMode.Dark,
+			ImageCache.EmoteSize.Small
 		)
 		if tex != null:
 			spawn_emote(tex, emotes_to_spawn[emote_id])

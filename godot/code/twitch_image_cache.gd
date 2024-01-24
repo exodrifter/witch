@@ -1,21 +1,27 @@
+class_name ImageCache
 extends Node
 
-signal emote_loaded
+signal emote_loaded(cache: ImageCache)
 
 const URL: String = "https://static-cdn.jtvnw.net"
 
-var client: HTTPClient = HTTPClient.new()
+var client: HTTPClient
 var response: PackedByteArray = []
-var queue: Array[String] = []
+var tasks: Array[Dictionary] = []
 
+var cache_path: String
 var cache: Dictionary
 
-func _init() -> void:
+func _init(path: String) -> void:
+	client = HTTPClient.new()
 	client.connect_to_host(URL)
+	if not path.ends_with("/"):
+		path += "/"
+	cache_path = path
 
 func _process(_delta) -> void:
 	client.poll()
-	
+
 	var status = client.get_status()
 	if status != HTTPClient.STATUS_BODY:
 		process_image()
@@ -46,41 +52,75 @@ func reconnect() -> void:
 	client.connect_to_host(URL)
 
 func request_next_image() -> void:
-	if not queue.is_empty():
-		client.request(
-			HTTPClient.METHOD_GET,
-			queue.front(),
-			["Accept: image/png"]
-		)
+	if not tasks.is_empty():
+		var task = tasks.front()
+		var path : String = "/emoticons/v2/{id}/static/{theme}/{size}".format({
+			"id": task.emote_id,
+			"theme": theme_mode_str(task.theme),
+			"size": emote_size_str(task.size),
+		})
+		client.request(HTTPClient.METHOD_GET, path, ["Accept: image/png"])
 
 func process_image() -> void:
 	if response.is_empty():
 		return
+	var task = tasks.pop_front()
+	print("Processing image for task ", task)
 
-	var img := Image.new()
-	img.load_png_from_buffer(response)
+	# Write the texture to the memory cache
+	cache[task] = make_texture(response)
+
+	# Write the texture to the disk cache
+	var disk_path = cache_path + "{theme}/{size}/".format({
+		"theme": theme_mode_str(task.theme),
+		"size": emote_size_str(task.size),
+	})
+	DirAccess.make_dir_recursive_absolute(disk_path)
+	var file = FileAccess.open(
+		disk_path + task.emote_id + ".png",
+		FileAccess.WRITE
+	)
+	file.store_buffer(response)
+	file.close()
+
 	response.clear()
-
-	var path = queue.pop_front()
-	var texture := ImageTexture.new()
-	texture.set_image(img)
-	cache[path] = texture
-
-	emote_loaded.emit()
+	emote_loaded.emit(self)
 
 func get_emote(emote_id: String, theme: ThemeMode, size: EmoteSize) -> Texture2D:
-	var path : String = "/emoticons/v2/{id}/static/{theme}/{size}".format({
-		"id": emote_id,
-		"theme": theme_mode_str(theme),
-		"size": emote_size_str(size),
-	})
+	var task = {
+		"emote_id": emote_id,
+		"theme": theme,
+		"size": size,
+	}
 
-	if cache.has(path):
-		return cache[path]
-	else:
-		if queue.find(path) == -1:
-			queue.append(path)
-		return null
+	# Load from memory cache
+	if cache.has(task):
+		return cache[task]
+
+	# Load from disk cache
+	var disk_path = cache_path + "{theme}/{size}/{emote_id}.png".format({
+		"theme": theme_mode_str(task.theme),
+		"size": emote_size_str(task.size),
+		"emote_id": emote_id,
+	})
+	if FileAccess.file_exists(disk_path):
+		var bytes = FileAccess.get_file_as_bytes(disk_path)
+		var texture = make_texture(bytes)
+		cache[task] = texture
+		return texture
+
+	# Add the task to the queue
+	if tasks.find(task) == -1:
+		tasks.append(task)
+	return null
+
+func make_texture(bytes: PackedByteArray) -> ImageTexture:
+	# Write the texture to the memory cache
+	var img := Image.new()
+	img.load_png_from_buffer(bytes)
+	var texture := ImageTexture.new()
+	texture.set_image(img)
+	return texture
 
 #region Enumerations
 

@@ -4,7 +4,6 @@ extends Entry
 var data: Dictionary = {}:
 	set(value):
 		data = value
-		setup()
 
 @onready var color_bar = $ColorBar
 @onready var text = $Text
@@ -83,9 +82,9 @@ var bits: int:
 func _ready() -> void:
 	text.clear()
 
-func setup() -> void:
+func setup(cache: ImageCache) -> void:
 	setup_color_bar()
-	setup_text()
+	setup_text(cache)
 
 func setup_color_bar() -> void:
 	if is_broadcaster:
@@ -97,7 +96,7 @@ func setup_color_bar() -> void:
 	else:
 		color_bar.modulate = Color.TRANSPARENT
 
-func setup_text() -> void:
+func setup_text(cache: ImageCache) -> void:
 	text.clear()
 	if data.is_empty():
 		return
@@ -123,10 +122,10 @@ func setup_text() -> void:
 		append_bbcode(message_text.substr(last, start - last))
 
 		# Add the emote if it is loaded
-		var tex = TwitchImageCache.get_emote(
+		var tex = cache.get_emote(
 			emote["id"],
-			TwitchImageCache.ThemeMode.Dark,
-			TwitchImageCache.EmoteSize.Small
+			ImageCache.ThemeMode.Dark,
+			ImageCache.EmoteSize.Small
 		)
 		if tex != null:
 			text.add_image(tex, 0, 20)
@@ -140,10 +139,10 @@ func setup_text() -> void:
 	text.pop_all()
 
 	# Get notified when emotes are loaded if we're missing some
-	if missing_emotes and not TwitchImageCache.emote_loaded.is_connected(setup):
-		TwitchImageCache.emote_loaded.connect(setup)
-	if not missing_emotes and TwitchImageCache.emote_loaded.is_connected(setup):
-		TwitchImageCache.emote_loaded.disconnect(setup)
+	if missing_emotes and not cache.emote_loaded.is_connected(setup):
+		cache.emote_loaded.connect(setup)
+	if not missing_emotes and cache.emote_loaded.is_connected(setup):
+		cache.emote_loaded.disconnect(setup)
 
 # Like `append_text`, but parses both open AND close bbcode tags instead of just
 # open tags.

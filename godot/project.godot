@@ -17,10 +17,6 @@ config/custom_user_dir_name="exodrifter/witch"
 config/features=PackedStringArray("4.2", "Forward Plus")
 config/icon="res://icon.svg"
 
-[autoload]
-
-TwitchImageCache="*res://code/twitch_image_cache.gd"
-
 [display]
 
 window/size/viewport_width=1280
