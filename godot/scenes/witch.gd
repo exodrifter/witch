@@ -130,7 +130,7 @@ func process_message(data: Dictionary) -> void:
 				_:
 					notif_player.play()
 
-			chat_log.add_message(data)
+			chat_log.add_message(data).setup_with_privmsg(data)
 			queue_emotes(data)
 
 			if data.has("bits") and data.bits != null:
@@ -230,7 +230,7 @@ func process_notice(data: Dictionary) -> void:
 			if data.has("message_text") and \
 					data["message_text"] != null and \
 					data["message_text"] != "":
-				chat_log.add_message(data)
+				chat_log.add_message(data).setup_with_privmsg(data)
 				queue_emotes(data)
 
 #endregion

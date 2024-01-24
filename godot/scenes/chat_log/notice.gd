@@ -1,6 +1,6 @@
 ## Class for notices.
 class_name Notice
-extends MarginContainer
+extends Entry
 
 @onready var _background: ColorRect = $Background
 @onready var _icon: RichTextLabel = $MarginContainer/HBoxContainer/IconContainer/Icon

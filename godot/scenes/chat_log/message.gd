@@ -1,5 +1,5 @@
 class_name Message
-extends Control
+extends Entry
 
 var data: Dictionary = {}:
 	set(value):
@@ -8,38 +8,6 @@ var data: Dictionary = {}:
 
 @onready var color_bar = $HBoxContainer/ColorBar
 @onready var text = $HBoxContainer/Text
-
-## The login of the channel this message was sent in.
-var channel_login: String:
-	get:
-		if data.has("channel_login"):
-			return data["channel_login"]
-		else:
-			return ""
-
-## The UUID of the message.
-var message_id: String:
-	get:
-		if data.has("message_id"):
-			return data["message_id"]
-		else:
-			return "00000000-0000-0000-0000-000000000000"
-
-## The login of the user who sent the message.
-var user_id: String:
-	get:
-		if data.has("sender") and data["sender"].has("id"):
-			return data["sender"]["id"]
-		else:
-			return ""
-
-## The login of the user who sent the message.
-var user_login: String:
-	get:
-		if data.has("sender") and data["sender"].has("login"):
-			return data["sender"]["login"]
-		else:
-			return ""
 
 ## The name of the user who sent the message.
 var user_name: String:
@@ -115,12 +83,7 @@ var bits: int:
 func _ready() -> void:
 	text.clear()
 
-func _process(_delta) -> void:
-	if global_position.y > 720:
-		queue_free()
-
 func setup() -> void:
-	name = message_id
 	setup_color_bar()
 	setup_text()
 

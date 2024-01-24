@@ -30,17 +30,19 @@ func _add_entry(prefab: Node) -> Node:
 	return entry
 
 ## Adds a message to the chat log.
-func add_message(data: Dictionary) -> void:
+func add_message(data: Dictionary) -> Entry:
 	var message: Message = _add_entry(message_prefab)
 	message.data = data
+	return message
 
 ## Adds a notice to the chat log.
-func add_notice(icon: String, text: String, bg: Color, fg: Color) -> void:
+func add_notice(icon: String, text: String, bg: Color, fg: Color) -> Entry:
 	var notice: Notice = _add_entry(notice_prefab)
 	notice.icon = "[center]" + icon + "[/center]"
 	notice.text = text
 	notice.bg_color = bg
 	notice.fg_color = fg
+	return notice
 
 #endregion
 
@@ -49,32 +51,32 @@ func add_notice(icon: String, text: String, bg: Color, fg: Color) -> void:
 ## Removes all entries from a specific channel from the chat log.
 func remove_by_channel(channel_login: String) -> void:
 	for entry in entries.values():
-		if "channel_login" in entry:
-			if entry.channel_login == channel_login:
-				entry.modulate = Color.TRANSPARENT
+		entry = entry as Entry
+		if entry.channel_login == channel_login:
+			entry.modulate = Color.TRANSPARENT
 
 ## Removes a specific entry from the chat log.
 func remove_by_id(channel_login: String, message_id: String) -> void:
 	for entry in entries.values():
-		if "channel_login" in entry and "message_id" in entry:
-			if entry.channel_login == channel_login and \
-					entry.message_id == message_id:
-				entry.modulate = Color.TRANSPARENT
+		entry = entry as Entry
+		if entry.channel_login == channel_login and \
+				entry.message_id == message_id:
+			entry.modulate = Color.TRANSPARENT
 
 ## Removes all entries from a specific user by their id.
-func remove_by_user_id(channel_login: String, user_id: String) -> void:
+func remove_by_user_id(channel_login: String, sender_id: String) -> void:
 	for entry in entries.values():
-		if "channel_login" in entry and "user_id" in entry:
-			if entry.channel_login == channel_login and \
-					entry.user_id == user_id:
-				entry.modulate = Color.TRANSPARENT
+		entry = entry as Entry
+		if entry.channel_login == channel_login and \
+				entry.sender_id == sender_id:
+			entry.modulate = Color.TRANSPARENT
 
 ## Removes all entries from a specific user by their login.
-func remove_by_user_login(channel_login: String, user_login: String) -> void:
+func remove_by_user_login(channel_login: String, sender_login: String) -> void:
 	for entry in entries.values():
-		if "channel_login" in entry and "user_login" in entry:
-			if entry.channel_login == channel_login and \
-					entry.user_login == user_login:
-				entry.modulate = Color.TRANSPARENT
+		entry = entry as Entry
+		if entry.channel_login == channel_login and \
+				entry.sender_login == sender_login:
+			entry.modulate = Color.TRANSPARENT
 
 #endregion
