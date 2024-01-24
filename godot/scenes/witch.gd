@@ -37,6 +37,47 @@ func _ready():
 	bits_container.remove_child(bits_prefab)
 	emotes_container.remove_child(emotes_prefab)
 
+	# Initialize based on what mode we're in
+	match mode:
+		Mode.Replay:
+			pass
+		Mode.Live:
+			var now = Time.get_unix_time_from_system()
+			var cutoff = now - 24*60*60
+			var last_timestamp = null
+
+			# Load all replays from the last 24 hours
+			var files = DirAccess.get_files_at("user://replay")
+			for file in files:
+				var file_parts = file.split("-")
+				var timestamp = Time.get_unix_time_from_datetime_dict({
+					"year": file_parts[0],
+					"month": file_parts[1],
+					"day": file_parts[2],
+					"hour": file_parts[3],
+					"minute": file_parts[4],
+					"second": file_parts[5],
+				})
+
+				if cutoff <= timestamp:
+					var replay = FileAccess.open("user://replay/" + file, FileAccess.READ)
+					while not replay.eof_reached():
+						var line = replay.get_line()
+						if line == "":
+							continue
+						var parts = line.split(" ", true, 1)
+						last_timestamp = float(parts[0])
+						var next_irc = parts[1]
+						var data = WitchIRC.parse(next_irc)
+						process_message(data, true)
+
+			if last_timestamp != null:
+				chat_log.add_notice(
+					"🕒", Time.get_datetime_string_from_unix_time(floori(last_timestamp)),
+					Color.DIM_GRAY,
+					Color.WHITE
+				)
+
 func _process(delta):
 	match mode:
 		Mode.Replay:
@@ -51,27 +92,30 @@ func _process(delta):
 						Color.YELLOW,
 						Color.BLACK
 					)
-				else:
+				elif not replay_ended:
 					replay_ended = true
 					chat_log.add_notice(
 						"⚠", "REPLAY FAILED",
 						Color.RED, Color.WHITE
 					)
 
+			if replay_ended:
+				return
+
 			# Replay lines
-			while not replay_irc_log.eof_reached():
+			while not replay_irc_log.eof_reached() and next_replay_line != "":
 				var parts = next_replay_line.split(" ", true, 1)
 				var next_unix = float(parts[0])
 				var next_irc = parts[1]
 				if first_unix_time + elapsed >= next_unix:
 					var data = WitchIRC.parse(next_irc)
-					process_message(data)
+					process_message(data, false)
 					next_replay_line = replay_irc_log.get_line()
 				else:
 					break
 
 			# Show replay ended notice
-			if replay_irc_log.eof_reached() and not replay_ended:
+			if replay_irc_log.eof_reached():
 				replay_ended = true
 				chat_log.add_notice(
 					"⚠", "REPLAY ENDED",
@@ -101,7 +145,7 @@ func _process(delta):
 			var messages = irc.poll()
 			for next_irc in messages:
 				var data = WitchIRC.parse(next_irc)
-				process_message(data)
+				process_message(data, false)
 				live_irc_log.store_string("{time} {irc}\n".format({
 					"time": Time.get_unix_time_from_system(),
 					"irc": next_irc,
@@ -112,7 +156,7 @@ func _process(delta):
 
 #region Message Processing
 
-func process_message(data: Dictionary) -> void:
+func process_message(data: Dictionary, silent: bool) -> void:
 	match data.type:
 		"clear_chat":
 			process_clear_chat(data)
@@ -121,23 +165,23 @@ func process_message(data: Dictionary) -> void:
 			chat_log.remove_by_id(data.channel_login, data.message_id)
 
 		"privmsg":
-			# Play the sound effect
-			match data.message_text.split(" ", true, 1)[0]:
-				"!listen":
-					listen_player.play()
-				"!don't":
-					crash_player.play()
-				_:
-					notif_player.play()
-
 			chat_log.add_message(data).setup_with_privmsg(data)
-			queue_emotes(data)
 
-			if data.has("bits") and data.bits != null:
-				spawn_bits(data.bits)
+			if not silent:
+				match data.message_text.split(" ", true, 1)[0]:
+					"!listen":
+						listen_player.play()
+					"!don't":
+						crash_player.play()
+					_:
+						notif_player.play()
+
+				queue_emotes(data)
+				if data.has("bits") and data.bits != null:
+					spawn_bits(data.bits)
 
 		"user_notice":
-			process_notice(data)
+			process_notice(data, silent)
 
 func process_clear_chat(data: Dictionary) -> void:
 	match data.action.type:
@@ -174,10 +218,11 @@ func process_clear_chat(data: Dictionary) -> void:
 			notice.name = "Timeout Notice"
 			notice.channel_login = data.channel_login
 
-func process_notice(data: Dictionary) -> void:
+func process_notice(data: Dictionary, silent: bool) -> void:
 	match data.event.type:
 		"sub_or_resub":
-			sub_player.play_random()
+			if not silent:
+				sub_player.play_random()
 			chat_log.add_notice(
 				"⭐", "[wave]{name} {type} {months}mo[/wave]".format({
 					"name": data.sender.name,
@@ -187,7 +232,8 @@ func process_notice(data: Dictionary) -> void:
 				Color.PURPLE, Color.WHITE
 			).setup_with_user_notice(data)
 		"raid":
-			raid_player.play_random()
+			if not silent:
+				raid_player.play_random()
 			chat_log.add_notice(
 				"⚑", "[wave]{raider} +{viewers}👁[/wave]".format({
 					"raider": data.sender.name,
@@ -196,7 +242,8 @@ func process_notice(data: Dictionary) -> void:
 				Color.PURPLE, Color.WHITE
 			).setup_with_user_notice(data)
 		"sub_gift":
-			sub_player.play_random()
+			if not silent:
+				sub_player.play_random()
 			chat_log.add_notice(
 				"📦", "[wave]{name} {type} {months}mo[/wave]".format({
 					"name": data.sender.name,
@@ -237,7 +284,8 @@ func process_notice(data: Dictionary) -> void:
 					data["message_text"] != null and \
 					data["message_text"] != "":
 				chat_log.add_message(data).setup_with_user_notice(data)
-				queue_emotes(data)
+				if not silent:
+					queue_emotes(data)
 
 #endregion
 
