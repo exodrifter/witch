@@ -61,7 +61,7 @@ func _process(delta):
 			# Replay lines
 			while not replay_irc_log.eof_reached():
 				var parts = next_replay_line.split(" ", true, 1)
-				var next_unix = int(parts[0])
+				var next_unix = float(parts[0])
 				var next_irc = parts[1]
 				if first_unix_time + elapsed >= next_unix:
 					var data = WitchIRC.parse(next_irc)
