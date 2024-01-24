@@ -143,30 +143,36 @@ func process_clear_chat(data: Dictionary) -> void:
 	match data.action.type:
 		"chat_cleared":
 			chat_log.remove_by_channel(data.channel_login)
-			chat_log.add_notice(
+			var notice: Entry = chat_log.add_notice(
 				"⌫", "chat cleared",
 				Color(.1, .1, .1), Color.WHITE
 			)
+			notice.name = "Clear Notice"
+			notice.channel_login = data.channel_login
 		"user_banned":
 			chat_log.remove_by_user_login(
 				data.channel_login,
 				data.action.user_login
 			)
-			chat_log.add_notice(
+			var notice = chat_log.add_notice(
 				"🚫", "{user} banned".format({
 					"user": data.action.user_login,
 				}),
 				Color(.1, .1, .1), Color.WHITE
 			)
+			notice.name = "Ban Notice"
+			notice.channel_login = data.channel_login
 		"user_timed_out":
 			chat_log.remove_by_user_id(data.channel_login, data.action.user_id)
-			chat_log.add_notice(
+			var notice = chat_log.add_notice(
 				"⏰", "{user} timeout {duration}s".format({
 					"user": data.action.user_login,
 					"duration": data.action.timeout_length,
 				}),
 				Color(.1, .1, .1), Color.WHITE
 			)
+			notice.name = "Timeout Notice"
+			notice.channel_login = data.channel_login
 
 func process_notice(data: Dictionary) -> void:
 	match data.event.type:
@@ -179,7 +185,7 @@ func process_notice(data: Dictionary) -> void:
 					"months": data.event.cumulative_months,
 				}),
 				Color.PURPLE, Color.WHITE
-			)
+			).setup_with_user_notice(data)
 		"raid":
 			raid_player.play_random()
 			chat_log.add_notice(
@@ -188,7 +194,7 @@ func process_notice(data: Dictionary) -> void:
 					"viewers": data.event.viewer_count,
 				}),
 				Color.PURPLE, Color.WHITE
-			)
+			).setup_with_user_notice(data)
 		"sub_gift":
 			sub_player.play_random()
 			chat_log.add_notice(
@@ -198,7 +204,7 @@ func process_notice(data: Dictionary) -> void:
 					"months": data.event.cumulative_months,
 				}),
 				Color.PURPLE, Color.WHITE
-			)
+			).setup_with_user_notice(data)
 		"sub_mystery_gift":
 			chat_log.add_notice(
 				"🚚", "[wave]{name} +{count}📦 {type}[/wave]".format({
@@ -207,7 +213,7 @@ func process_notice(data: Dictionary) -> void:
 					"type": data.event.sub_plan,
 				}),
 				Color.PURPLE, Color.WHITE
-			)
+			).setup_with_user_notice(data)
 		"anon_sub_mystery_gift":
 			chat_log.add_notice(
 				"🚚", "[wave]{name} +{count}📦 {type}[/wave]".format({
@@ -216,7 +222,7 @@ func process_notice(data: Dictionary) -> void:
 					"type": data.event.sub_plan,
 				}),
 				Color.PURPLE, Color.WHITE
-			)
+			).setup_with_user_notice(data)
 		"bits_badge_tier_prefab":
 			chat_log.add_notice(
 				"⬙", "[wave]{name} {threshold}![/wave]".format({
@@ -224,13 +230,13 @@ func process_notice(data: Dictionary) -> void:
 					"threshold": data.event.threshold,
 				}),
 				Color.PURPLE, Color.WHITE
-			)
+			).setup_with_user_notice(data)
 		_:
 			# Treat unknown events like messages
 			if data.has("message_text") and \
 					data["message_text"] != null and \
 					data["message_text"] != "":
-				chat_log.add_message(data).setup_with_privmsg(data)
+				chat_log.add_message(data).setup_with_user_notice(data)
 				queue_emotes(data)
 
 #endregion
