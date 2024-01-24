@@ -3,22 +3,17 @@ class_name ChatLog
 extends Node
 
 @onready var chat_container: Container = $Container
-@onready var message_prefab: Message = %Message
-@onready var notice_prefab: Notice = %Notice
+@onready var message_prefab := preload("res://scenes/chat_log/message.tscn")
+@onready var notice_prefab := preload("res://scenes/chat_log/notice.tscn")
 
 ## A reference to every valid entry in the chat log.
 var entries: Dictionary = {}
 
-func _ready():
-	# Setup prefabs
-	chat_container.remove_child(message_prefab)
-	chat_container.remove_child(notice_prefab)
-
 #region Adding entries
 
 ## Adds an entry to the chat log.
-func _add_entry(prefab: Node) -> Node:
-	var entry = prefab.duplicate()
+func _add_entry(prefab: PackedScene) -> Node:
+	var entry = prefab.instantiate()
 	chat_container.add_child(entry)
 	chat_container.move_child(entry, 0)
 

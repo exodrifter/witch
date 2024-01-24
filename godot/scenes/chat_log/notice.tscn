@@ -1,0 +1,49 @@
+[gd_scene load_steps=3 format=3 uid="uid://cslf155k5yr4i"]
+
+[ext_resource type="Script" path="res://scenes/chat_log/notice.gd" id="1_nsi3k"]
+[ext_resource type="Theme" uid="uid://omkl8qh717w8" path="res://default_theme.tres" id="2_ewsm5"]
+
+[node name="Notice" type="MarginContainer"]
+offset_right = 200.0
+offset_bottom = 27.0
+size_flags_horizontal = 3
+size_flags_vertical = 0
+script = ExtResource("1_nsi3k")
+
+[node name="Background" type="ColorRect" parent="."]
+modulate = Color(0.180392, 0.180392, 0.180392, 1)
+layout_mode = 2
+
+[node name="MarginContainer" type="MarginContainer" parent="."]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/margin_top = 2
+theme_override_constants/margin_bottom = 2
+
+[node name="HBoxContainer" type="HBoxContainer" parent="MarginContainer"]
+layout_mode = 2
+
+[node name="IconContainer" type="VBoxContainer" parent="MarginContainer/HBoxContainer"]
+layout_mode = 2
+
+[node name="Icon" type="RichTextLabel" parent="MarginContainer/HBoxContainer/IconContainer"]
+custom_minimum_size = Vector2(25, 0)
+layout_mode = 2
+bbcode_enabled = true
+text = "[center]🛈[/center]"
+fit_content = true
+
+[node name="TextContainer" type="VBoxContainer" parent="MarginContainer/HBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+alignment = 1
+
+[node name="Text" type="RichTextLabel" parent="MarginContainer/HBoxContainer/TextContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 0
+theme = ExtResource("2_ewsm5")
+bbcode_enabled = true
+text = "notice"
+fit_content = true
+visible_characters_behavior = 1

@@ -1,8 +1,6 @@
 class_name Witch
 extends Node
 
-const DUPE_FLAGS := DUPLICATE_SIGNALS | DUPLICATE_GROUPS | DUPLICATE_SCRIPTS
-
 enum Mode { Live, Replay }
 @export var mode: Mode = Mode.Live
 @export var channel: String = "exodrifter_"
@@ -15,11 +13,8 @@ enum Mode { Live, Replay }
 @onready var sub_player: SoundBankPlayer = %SubPlayer
 @onready var chat_log: ChatLog = $ChatLog
 
-@onready var bits_prefab: GPUParticles2D = %BitParticles
-@onready var emotes_prefab: GPUParticles2D = %EmoteParticles
-
-@onready var bits_container: Node = bits_prefab.get_parent()
-@onready var emotes_container: Node = emotes_prefab.get_parent()
+@onready var bits_prefab := preload("res://scenes/bit_particles.tscn")
+@onready var emotes_prefab := preload("res://scenes/emote_particles.tscn")
 
 # Live variables
 var irc: WitchIRC
@@ -33,10 +28,6 @@ var replay_ended: bool
 var elapsed: float
 
 func _ready():
-	# Setup prefabs
-	bits_container.remove_child(bits_prefab)
-	emotes_container.remove_child(emotes_prefab)
-
 	# Initialize based on what mode we're in
 	match mode:
 		Mode.Replay:
@@ -306,11 +297,11 @@ func spawn_bits(bits: int) -> void:
 	if bits <= 0:
 		return
 
-	var emitter: GPUParticles2D = bits_prefab.duplicate(DUPE_FLAGS)
+	var emitter: GPUParticles2D = bits_prefab.instantiate()
 	emitter.amount = bits
 	emitter.emitting = true
 	emitter.finished.connect(emitter.queue_free)
-	bits_container.add_child(emitter)
+	add_child(emitter)
 
 var emotes_to_spawn: Dictionary = {}
 
@@ -343,11 +334,11 @@ func spawn_emote(emote: Texture2D, amount: int) -> void:
 	if emote == null:
 		return
 
-	var emitter: GPUParticles2D = emotes_prefab.duplicate(DUPE_FLAGS)
+	var emitter: GPUParticles2D = emotes_prefab.instantiate()
 	emitter.texture = emote
 	emitter.amount = amount
 	emitter.emitting = true
 	emitter.finished.connect(emitter.queue_free)
-	emotes_container.add_child(emitter)
+	add_child(emitter)
 
 #endregion

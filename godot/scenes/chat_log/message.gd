@@ -6,8 +6,8 @@ var data: Dictionary = {}:
 		data = value
 		setup()
 
-@onready var color_bar = $HBoxContainer/ColorBar
-@onready var text = $HBoxContainer/Text
+@onready var color_bar = $ColorBar
+@onready var text = $Text
 
 ## The name of the user who sent the message.
 var user_name: String:
