@@ -13,17 +13,13 @@ enum Mode { Live, Replay }
 @onready var notif_player: AudioStreamPlayer = %NotifPlayer
 @onready var raid_player: SoundBankPlayer = %RaidPlayer
 @onready var sub_player: SoundBankPlayer = %SubPlayer
+@onready var chat_log: ChatLog = $ChatLog
 
 @onready var bits_prefab: GPUParticles2D = %BitParticles
 @onready var emotes_prefab: GPUParticles2D = %EmoteParticles
-@onready var message_prefab: Message = %Message
-@onready var notice_prefab: Notice = %Notice
 
 @onready var bits_container: Node = bits_prefab.get_parent()
 @onready var emotes_container: Node = emotes_prefab.get_parent()
-@onready var chat_container: Node = message_prefab.get_parent()
-
-var spawned_messages: Array[Message] = []
 
 # Live variables
 var irc: WitchIRC
@@ -40,8 +36,6 @@ func _ready():
 	# Setup prefabs
 	bits_container.remove_child(bits_prefab)
 	emotes_container.remove_child(emotes_prefab)
-	chat_container.remove_child(message_prefab)
-	chat_container.remove_child(notice_prefab)
 
 func _process(delta):
 	match mode:
@@ -52,14 +46,14 @@ func _process(delta):
 				if replay_irc_log != null:
 					next_replay_line = replay_irc_log.get_line()
 					first_unix_time = float(next_replay_line.split(" ", true, 1)[0])
-					spawn_notice(
+					chat_log.add_notice(
 						"⟲", Time.get_datetime_string_from_unix_time(floori(first_unix_time)),
 						Color.YELLOW,
 						Color.BLACK
 					)
 				else:
 					replay_ended = true
-					spawn_notice(
+					chat_log.add_notice(
 						"⚠", "REPLAY FAILED",
 						Color.RED, Color.WHITE
 					)
@@ -79,7 +73,7 @@ func _process(delta):
 			# Show replay ended notice
 			if replay_irc_log.eof_reached() and not replay_ended:
 				replay_ended = true
-				spawn_notice(
+				chat_log.add_notice(
 					"⚠", "REPLAY ENDED",
 					Color.YELLOW, Color.BLACK
 				)
@@ -122,7 +116,7 @@ func process_message(data: Dictionary) -> void:
 			process_clear_chat(data)
 
 		"clear_msg":
-			process_clear_msg(data)
+			chat_log.remove_by_id(data.channel_login, data.message_id)
 
 		"privmsg":
 			# Play the sound effect
@@ -134,14 +128,10 @@ func process_message(data: Dictionary) -> void:
 				_:
 					notif_player.play()
 
-			var message: Message = message_prefab.duplicate(DUPE_FLAGS)
-			chat_container.add_child(message)
-			chat_container.move_child(message, 0)
-			message.witch = self
-			message.data = data
-			spawned_messages.push_back(message)
+			chat_log.add_message(data, self)
 
-			spawn_bits(message.bits)
+			if data.has("bits") and data.bits != null:
+				spawn_bits(data.bits)
 
 		"user_notice":
 			process_notice(data)
@@ -149,48 +139,37 @@ func process_message(data: Dictionary) -> void:
 func process_clear_chat(data: Dictionary) -> void:
 	match data.action.type:
 		"chat_cleared":
-			spawn_notice(
+			chat_log.remove_by_channel(data.channel_login)
+			chat_log.add_notice(
 				"⌫", "chat cleared",
 				Color(.1, .1, .1), Color.WHITE
 			)
-			for message in spawned_messages:
-				if message.channel_login == data.channel_login:
-					message.modulate = Color.TRANSPARENT
 		"user_banned":
-			spawn_notice(
+			chat_log.remove_by_user_login(
+				data.channel_login,
+				data.action.user_login
+			)
+			chat_log.add_notice(
 				"🚫", "{user} banned".format({
 					"user": data.action.user_login,
 				}),
 				Color(.1, .1, .1), Color.WHITE
 			)
-			for message in spawned_messages:
-				if message.channel_login == data.channel_login and \
-						message.user_login == data.action.user_login:
-					message.modulate = Color.TRANSPARENT
 		"user_timed_out":
-			spawn_notice(
+			chat_log.remove_by_user_id(data.channel_login, data.action.user_id)
+			chat_log.add_notice(
 				"⏰", "{user} timeout {duration}s".format({
 					"user": data.action.user_login,
 					"duration": data.action.timeout_length,
 				}),
 				Color(.1, .1, .1), Color.WHITE
 			)
-			for message in spawned_messages:
-				if message.channel_login == data.channel_login and \
-						message.user_id == data.action.user_id:
-					message.modulate = Color.TRANSPARENT
-
-func process_clear_msg(data: Dictionary) -> void:
-	for message in spawned_messages:
-		if message.channel_login == data.channel_login and \
-				message.message_id == data.message_id:
-			message.modulate = Color.TRANSPARENT
 
 func process_notice(data: Dictionary) -> void:
 	match data.event.type:
 		"sub_or_resub":
 			sub_player.play_random()
-			spawn_notice(
+			chat_log.add_notice(
 				"⭐", "[wave]{name} {type} {months}mo[/wave]".format({
 					"name": data.sender.name,
 					"type": data.event.sub_plan,
@@ -200,7 +179,7 @@ func process_notice(data: Dictionary) -> void:
 			)
 		"raid":
 			raid_player.play_random()
-			spawn_notice(
+			chat_log.add_notice(
 				"⚑", "[wave]{raider} +{viewers}👁[/wave]".format({
 					"raider": data.sender.name,
 					"viewers": data.event.viewer_count,
@@ -209,7 +188,7 @@ func process_notice(data: Dictionary) -> void:
 			)
 		"sub_gift":
 			sub_player.play_random()
-			spawn_notice(
+			chat_log.add_notice(
 				"📦", "[wave]{name} {type} {months}mo[/wave]".format({
 					"name": data.sender.name,
 					"type": data.event.sub_plan,
@@ -218,7 +197,7 @@ func process_notice(data: Dictionary) -> void:
 				Color.PURPLE, Color.WHITE
 			)
 		"sub_mystery_gift":
-			spawn_notice(
+			chat_log.add_notice(
 				"🚚", "[wave]{name} +{count}📦 {type}[/wave]".format({
 					"name": data.sender.name,
 					"count": data.event.mass_gift_count,
@@ -227,7 +206,7 @@ func process_notice(data: Dictionary) -> void:
 				Color.PURPLE, Color.WHITE
 			)
 		"anon_sub_mystery_gift":
-			spawn_notice(
+			chat_log.add_notice(
 				"🚚", "[wave]{name} +{count}📦 {type}[/wave]".format({
 					"name": data.sender.name,
 					"count": data.event.mass_gift_count,
@@ -236,7 +215,7 @@ func process_notice(data: Dictionary) -> void:
 				Color.PURPLE, Color.WHITE
 			)
 		"bits_badge_tier_prefab":
-			spawn_notice(
+			chat_log.add_notice(
 				"⬙", "[wave]{name} {threshold}![/wave]".format({
 					"name": data.sender.name,
 					"threshold": data.event.threshold,
@@ -248,11 +227,7 @@ func process_notice(data: Dictionary) -> void:
 			if data.has("message_text") and \
 					data["message_text"] != null and \
 					data["message_text"] != "":
-				var message: Message = message_prefab.duplicate(DUPE_FLAGS)
-				chat_container.add_child(message)
-				chat_container.move_child(message, 0)
-				message.witch = self
-				message.data = data
+				chat_log.add_message(data, self)
 
 #endregion
 
@@ -277,14 +252,5 @@ func spawn_emote(emote: Texture2D) -> void:
 	emitter.emitting = true
 	emitter.finished.connect(emitter.queue_free)
 	emotes_container.add_child(emitter)
-
-func spawn_notice(icon: String, text: String, bg: Color, fg: Color) -> void:
-	var notice: Notice = notice_prefab.duplicate(DUPE_FLAGS)
-	chat_container.add_child(notice)
-	chat_container.move_child(notice, 0)
-	notice.icon = "[center]" + icon + "[/center]"
-	notice.text = text
-	notice.bg_color = bg
-	notice.fg_color = fg
 
 #endregion

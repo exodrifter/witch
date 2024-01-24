@@ -121,12 +121,6 @@ func _process(_delta) -> void:
 	if global_position.y > 720:
 		queue_free()
 
-func _exit_tree() -> void:
-	if is_instance_valid(witch):
-		var index = witch.spawned_messages.find(self)
-		if index != -1:
-			witch.spawned_messages.remove_at(index)
-
 func setup() -> void:
 	name = message_id
 	setup_color_bar()

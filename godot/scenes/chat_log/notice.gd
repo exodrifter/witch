@@ -2,6 +2,10 @@
 class_name Notice
 extends MarginContainer
 
+@onready var _background: TextureRect = $Background
+@onready var _icon: RichTextLabel = $MarginContainer/HBoxContainer/IconContainer/Icon
+@onready var _text: RichTextLabel = $MarginContainer/HBoxContainer/TextContainer/Text
+
 ## The icon to use for the notice.
 var icon: String:
 	get:
@@ -28,7 +32,3 @@ var fg_color: Color:
 	set(value):
 		_icon.modulate = value
 		_text.modulate = value
-
-@onready var _background: TextureRect = $Background
-@onready var _icon: RichTextLabel = $MarginContainer/HBoxContainer/IconContainer/Icon
-@onready var _text: RichTextLabel = $MarginContainer/HBoxContainer/TextContainer/Text
