@@ -34,7 +34,8 @@ folder_colors={
 "res://code/": "gray",
 "res://fonts/": "green",
 "res://gdext/": "gray",
-"res://scenes/": "purple"
+"res://scenes/": "purple",
+"res://textures/": "green"
 }
 
 [rendering]
