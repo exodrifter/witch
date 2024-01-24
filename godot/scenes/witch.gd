@@ -74,7 +74,7 @@ func _ready():
 			if last_timestamp != null:
 				chat_log.add_notice(
 					"🕒", Time.get_datetime_string_from_unix_time(floori(last_timestamp)),
-					Color.DIM_GRAY,
+					Color.DARK_SLATE_GRAY,
 					Color.WHITE
 				)
 
@@ -160,9 +160,10 @@ func process_message(data: Dictionary, silent: bool) -> void:
 	match data.type:
 		"clear_chat":
 			process_clear_chat(data)
-
 		"clear_msg":
 			chat_log.remove_by_id(data.channel_login, data.message_id)
+		"join":
+			process_join(data)
 
 		"privmsg":
 			chat_log.add_message(data).setup_with_privmsg(data)
@@ -181,7 +182,7 @@ func process_message(data: Dictionary, silent: bool) -> void:
 					spawn_bits(data.bits)
 
 		"user_notice":
-			process_notice(data, silent)
+			process_user_notice(data, silent)
 
 func process_clear_chat(data: Dictionary) -> void:
 	match data.action.type:
@@ -218,7 +219,17 @@ func process_clear_chat(data: Dictionary) -> void:
 			notice.name = "Timeout Notice"
 			notice.channel_login = data.channel_login
 
-func process_notice(data: Dictionary, silent: bool) -> void:
+func process_join(data: Dictionary) -> void:
+	var notice = chat_log.add_notice(
+		"🚪", "#{channel_login} {user_login}".format({
+			"channel_login": data.channel_login,
+			"user_login": data.user_login,
+		}),
+		Color.DARK_SLATE_GRAY, Color.WHITE
+	)
+	notice.channel_login = data.channel_login
+
+func process_user_notice(data: Dictionary, silent: bool) -> void:
 	match data.event.type:
 		"sub_or_resub":
 			if not silent:
