@@ -235,7 +235,7 @@ func process_user_notice(data: Dictionary, silent: bool) -> void:
 			if not silent:
 				sub_player.play_random()
 			chat_log.add_notice(
-				"⭐", "[wave]{name} {type} {months}mo[/wave]".format({
+				"🟊", "[wave]{name} {type} {months}mo[/wave]".format({
 					"name": data.sender.name,
 					"type": data.event.sub_plan,
 					"months": data.event.cumulative_months,
