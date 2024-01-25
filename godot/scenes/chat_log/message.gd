@@ -88,13 +88,13 @@ func setup(cache: ImageCache) -> void:
 
 func setup_color_bar() -> void:
 	if is_broadcaster:
-		color_bar.modulate = Color.RED
+		color_bar.color = Color.RED
 	elif is_mod:
-		color_bar.modulate = Color.GREEN
+		color_bar.color = Color.GREEN
 	elif is_vip:
-		color_bar.modulate = Color.PURPLE
+		color_bar.color = Color.PURPLE
 	else:
-		color_bar.modulate = Color.TRANSPARENT
+		color_bar.color = Color.TRANSPARENT
 
 func setup_text(cache: ImageCache) -> void:
 	text.clear()
