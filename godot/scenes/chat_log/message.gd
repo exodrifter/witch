@@ -113,6 +113,10 @@ func setup_text(cache: ImageCache) -> void:
 		append_bbcode(": ")
 		text.pop()
 
+	# Highlight the message
+	if data.source.tags.has("msg-id") and data.source.tags["msg-id"]:
+		text.push_bgcolor(Color(0.459, 0.369, 0.737))
+
 	# Show the message
 	var missing_emotes = false
 	var last = 0
