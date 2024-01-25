@@ -256,7 +256,7 @@ func process_user_notice(data: Dictionary, cache: ImageCache, silent: bool) -> v
 			chat_log.add_notice(
 				"🟊", "[wave]{name} {type} {months}mo[/wave]".format({
 					"name": data.sender.name,
-					"type": data.event.sub_plan,
+					"type": _get_sub_plan(data.event.sub_plan),
 					"months": data.event.cumulative_months,
 				}),
 				Color.PURPLE, Color.WHITE
@@ -277,7 +277,7 @@ func process_user_notice(data: Dictionary, cache: ImageCache, silent: bool) -> v
 			chat_log.add_notice(
 				"📦", "[wave]{name} {type} {months}mo[/wave]".format({
 					"name": data.sender.name,
-					"type": data.event.sub_plan,
+					"type": _get_sub_plan(data.event.sub_plan),
 					"months": data.event.cumulative_months,
 				}),
 				Color.PURPLE, Color.WHITE
@@ -287,7 +287,7 @@ func process_user_notice(data: Dictionary, cache: ImageCache, silent: bool) -> v
 				"🚚", "[wave]{name} +{count}📦 {type}[/wave]".format({
 					"name": data.sender.name,
 					"count": data.event.mass_gift_count,
-					"type": data.event.sub_plan,
+					"type": _get_sub_plan(data.event.sub_plan),
 				}),
 				Color.PURPLE, Color.WHITE
 			).setup_with_user_notice(data)
@@ -296,7 +296,7 @@ func process_user_notice(data: Dictionary, cache: ImageCache, silent: bool) -> v
 				"🚚", "[wave]{name} +{count}📦 {type}[/wave]".format({
 					"name": data.sender.name,
 					"count": data.event.mass_gift_count,
-					"type": data.event.sub_plan,
+					"type": _get_sub_plan(data.event.sub_plan),
 				}),
 				Color.PURPLE, Color.WHITE
 			).setup_with_user_notice(data)
@@ -311,34 +311,57 @@ func process_user_notice(data: Dictionary, cache: ImageCache, silent: bool) -> v
 		"unknown":
 			if data.source.tags.has("msg-id") and \
 					data.source.tags["msg-id"] == "announcement":
-				var color = Color.TRANSPARENT
-				match data.source.tags["msg-param-color"]:
-					"PRIMARY":
-						color = Color(0.471, 0.435, 0.494) # TODO: Use channel color
-					"BLUE":
-						color = Color.DARK_BLUE
-					"GREEN":
-						color = Color.DARK_GREEN
-					"ORANGE":
-						color = Color.DARK_ORANGE
-					"PURPLE":
-						color = Color.PURPLE
-				chat_log.add_announcement(
-					data.sender.name,
-					data.message_text,
-					color
-				).setup_with_user_notice(data)
 				if not silent:
 					notif_player.play() # TODO: Announcement sound
 					queue_emotes(data)
+				chat_log.add_notice(
+					"📣", "{name}: {message}".format({
+						"name": data.sender.name,
+						"message": data.message_text,
+					}),
+					_get_msg_param_color(data.source.tags["msg-param-color"]), Color.WHITE
+				).setup_with_user_notice(data)
 		_:
 			# Treat unknown events like messages
 			if data.has("message_text") and \
 					data["message_text"] != null and \
 					data["message_text"] != "":
-				chat_log.add_message(data, cache).setup_with_user_notice(data)
 				if not silent:
+					notif_player.play()
 					queue_emotes(data)
+				chat_log.add_message(data, cache).setup_with_user_notice(data)
+
+#endregion
+
+#region Helpers
+
+func _get_msg_param_color(color: String) -> Color:
+	match color:
+		"BLUE":
+			return Color.DARK_BLUE
+		"GREEN":
+			return Color.DARK_GREEN
+		"ORANGE":
+			return Color.DARK_ORANGE
+		"PURPLE":
+			return Color.PURPLE
+		"PRIMARY":
+			return Color(0.471, 0.435, 0.494) # TODO: Use channel color
+		_:
+			return Color(0.471, 0.435, 0.494) # TODO: Use channel color
+
+func _get_sub_plan(sub_plan: String) -> String:
+	match sub_plan:
+		"Prime":
+			return "prime"
+		"1000":
+			return "t1"
+		"2000":
+			return "t2"
+		"3000":
+			return "t3"
+		_:
+			return sub_plan
 
 #endregion
 

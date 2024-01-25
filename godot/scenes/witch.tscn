@@ -41,7 +41,6 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 script = ExtResource("1_8stk4")
-replay = "user://replay/2024-01-24-22-29-44"
 
 [node name="Audio" type="Node" parent="."]
 
