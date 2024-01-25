@@ -223,9 +223,8 @@ func process_clear_chat(data: Dictionary) -> void:
 
 func process_join(data: Dictionary) -> void:
 	var notice = chat_log.add_notice(
-		"🚪", "#{channel_login} {user_login}".format({
+		"🚪", "#{channel_login}".format({
 			"channel_login": data.channel_login,
-			"user_login": data.user_login,
 		}),
 		Color.DARK_SLATE_GRAY, Color.WHITE
 	)
