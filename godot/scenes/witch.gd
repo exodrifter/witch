@@ -232,7 +232,20 @@ func process_join(data: Dictionary) -> void:
 	notice.channel_login = data.channel_login
 
 func process_privmsg(data: Dictionary, cache: ImageCache, silent: bool) -> void:
-	chat_log.add_message(data, cache).setup_with_privmsg(data)
+	# Check if this is a first-time chatter
+	if data.has("source") and \
+			data["source"].has("tags") and \
+			data["source"]["tags"].has("first-msg") and\
+			data["source"]["tags"]["first-msg"] == "1":
+		chat_log.add_notice(
+			"✨", "{user}: {message}".format({
+				"user": data.sender.name,
+				"message": data.message_text
+			}),
+			Color.DODGER_BLUE, Color.WHITE
+		).setup_with_privmsg(data)
+	else:
+		chat_log.add_message(data, cache).setup_with_privmsg(data)
 
 	if not silent:
 		match data.message_text.split(" ", true, 1)[0]:
