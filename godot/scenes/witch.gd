@@ -246,18 +246,32 @@ func process_privmsg(data: Dictionary, cache: ImageCache, silent: bool) -> void:
 	else:
 		chat_log.add_message(data, cache).setup_with_privmsg(data)
 
-	if not silent:
-		match data.message_text.split(" ", true, 1)[0]:
-			"!listen":
+	match data.message_text.split(" ", true, 1)[0]:
+		"!listen":
+			if not silent:
 				listen_player.play()
-			"!don't":
+		"!don't":
+			if not silent:
 				crash_player.play()
-			_:
+		"!lc":
+			var url = "https://exodrifter.itch.io/lost-contact"
+			if not silent:
+				notif_player.play()
+				irc.say(channel, url)
+			chat_log.add_notice("📣", url, Color.YELLOW, Color.BLACK)
+		"!gd":
+			var url = "https://store.steampowered.com/app/2310400/Gender_Dysphoria"
+			if not silent:
+				notif_player.play()
+				irc.say(channel, url)
+			chat_log.add_notice("📣", url, Color.YELLOW, Color.BLACK)
+		_:
+			if not silent:
 				notif_player.play()
 
-		queue_emotes(data)
-		if data.has("bits") and data.bits != null:
-			spawn_bits(data.bits)
+	queue_emotes(data)
+	if data.has("bits") and data.bits != null:
+		spawn_bits(data.bits)
 
 func process_user_notice(data: Dictionary, cache: ImageCache, silent: bool) -> void:
 	print(data)

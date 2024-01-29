@@ -5,6 +5,7 @@ const TIP_SECONDS: float = 30
 var tips: Array[String] = [
 	"discord.gg/arqFQVt",
 	"!don't !listen",
+	"!gd !lc",
 ]
 var current_index: int
 var elapsed: float
