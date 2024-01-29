@@ -1,6 +1,8 @@
 mod witch_irc;
 
 pub fn main() {
+    tracing_subscriber::fmt::init();
+
     let mut irc = witch_irc::WitchIRC::new();
     let _ = irc._join("exodrifter_".to_owned());
 

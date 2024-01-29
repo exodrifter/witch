@@ -7,6 +7,9 @@ edition = "2021"
 crate-type = ["cdylib"]
 
 [dependencies]
+async-trait = "0.1.77"
+chrono = "0.4.33"
 godot = { git = "https://github.com/godot-rust/gdext", branch = "master" }
 tokio = { version = "1", features = ["full"] }
-twitch-irc = "5.0.1"
+twitch-irc = { version = "5.0.1", features = ["refreshing-token-rustls-native-roots"] }
+tracing-subscriber = "0.3.18"

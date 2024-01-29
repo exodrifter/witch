@@ -1,8 +1,16 @@
+use twitch_irc::transport::tcp::TCPTransport;
+use twitch_irc::transport::tcp::TLS;
+use std::fs;
+use async_trait::async_trait;
+use chrono::DateTime;
+use core::num::ParseIntError;
+use godot::engine::file_access::*;
+use godot::engine::FileAccess;
 use godot::prelude::*;
 use std::collections::*;
 use tokio::sync::mpsc::UnboundedReceiver;
 use twitch_irc::ClientConfig;
-use twitch_irc::login::StaticLoginCredentials;
+use twitch_irc::login::{RefreshingLoginCredentials, TokenStorage, UserAccessToken};
 use twitch_irc::message::*;
 use twitch_irc::message::ClearChatAction::*;
 use twitch_irc::message::ServerMessage::*;
@@ -16,7 +24,7 @@ pub struct WitchIRC {
     // receiver will fail/exit
     _tokio_runtime: tokio::runtime::Runtime,
 
-    client: TwitchIRCClient<SecureTCPTransport, StaticLoginCredentials>,
+    client: TwitchIRCClient<SecureTCPTransport, RefreshingLoginCredentials<CustomTokenStorage>>,
     incoming_messages: UnboundedReceiver<ServerMessage>,
 }
 
@@ -82,15 +90,31 @@ impl WitchIRC {
             }
         }
     }
+
+    #[func]
+    fn say(&mut self, channel_login: String, message: String) -> Dictionary {
+        match self._say(&channel_login, &message) {
+            Ok(()) => dict! {
+                "type": "success",
+            },
+            Err(err) => dict! {
+                "type": "error",
+                "error": err.to_string(),
+            }
+        }
+    }
 }
 
 impl WitchIRC {
     pub fn new() -> Self {
         let tr = tokio::runtime::Runtime::new().unwrap();
         let (incoming_messages, client) = tr.block_on(async {
-            let config = ClientConfig::default();
+            let storage = CustomTokenStorage;
+            let (client_id, client_secret) = CustomTokenStorage::load_secrets().unwrap();
+            let credentials = RefreshingLoginCredentials::init(client_id, client_secret, storage);
+            let config = ClientConfig::new_simple(credentials);
             let (incoming_messages, client) =
-                TwitchIRCClient::<SecureTCPTransport, StaticLoginCredentials>::new(config);
+                TwitchIRCClient::<SecureTCPTransport, RefreshingLoginCredentials<CustomTokenStorage>>::new(config);
             (incoming_messages, client)
         });
 
@@ -114,6 +138,12 @@ impl WitchIRC {
             Ok(irc) => Ok(ServerMessage::try_from(irc).unwrap()),
             Err(err) => Err(err),
         }
+    }
+
+    pub fn _say(&mut self, channel_login: &str, message: &str) -> Result<(), twitch_irc::Error<TCPTransport<TLS>, RefreshingLoginCredentials<CustomTokenStorage>>> {
+        self._tokio_runtime.block_on(async {
+            self.client.say(channel_login.to_string(), message.to_string()).await
+        })
     }
 }
 
@@ -397,6 +427,73 @@ fn conv_source(source: &IRCMessage) -> Dictionary {
         "prefix": conv_or_nil(&source.prefix, &conv_irc_prefix),
         "command": source.command.to_variant(),
         "params": vec_to_array(&source.params),
+    }
+}
+
+// Authentication
+
+#[derive(Debug)]
+pub struct CustomTokenStorage;
+
+impl CustomTokenStorage {
+    fn load_secrets() -> Result<(String, String), std::io::Error> {
+        let lines: Vec<String> = fs::read_to_string("/home/exodrifter/.local/share/exodrifter/witch/secrets.txt")?
+            .lines()
+            .map(String::from)
+            .collect();
+
+        let client_id = lines[0].to_string();
+        let client_secret = lines[1].to_string();
+        Ok((client_id, client_secret))
+    }
+}
+
+#[async_trait]
+impl TokenStorage for CustomTokenStorage {
+    type LoadError = String;
+    type UpdateError = String;
+
+    async fn load_token(&mut self) -> Result<UserAccessToken, Self::LoadError> {
+        let lines: Vec<String> = fs::read_to_string("/home/exodrifter/.local/share/exodrifter/witch/tokens.txt")
+            .map_err(|x: std::io::Error| x.to_string())?
+            .lines()
+            .map(String::from)
+            .collect();
+
+        let access_token = &lines[0];
+        let refresh_token = &lines[1];
+        let created_at = str::parse::<i64>(&lines[2]).map_err(|x: ParseIntError| x.to_string())
+            .map(|x| DateTime::from_timestamp(x, 0))?
+            .unwrap();
+        let expires_at = str::parse(&lines[3]).map_err(|x: ParseIntError| x.to_string())?;
+        let expires_at = {
+            if expires_at < 0 {
+                None
+            }
+            else {
+                DateTime::from_timestamp(expires_at, 0)
+            }
+        };
+
+        Ok(UserAccessToken {
+            access_token: access_token.to_string(),
+            refresh_token: refresh_token.to_string(),
+            created_at,
+            expires_at,
+        })
+    }
+
+    async fn update_token(&mut self, token: &UserAccessToken) -> Result<(), Self::UpdateError> {
+        match FileAccess::open("res://tokens.txt".into(), ModeFlags::WRITE) {
+            None => Err("Cannot open file".to_owned()),
+            Some(mut file) => {
+                file.store_line(token.access_token.clone().into());
+                file.store_line(token.refresh_token.clone().into());
+                file.store_line(token.created_at.timestamp().to_string().into());
+                file.store_line(token.expires_at.map(|t| t.timestamp()).unwrap_or(-1).to_string().into());
+                Ok(())
+            },
+        }
     }
 }
 
