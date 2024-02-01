@@ -253,6 +253,7 @@ func process_privmsg(data: Dictionary, cache: ImageCache, silent: bool) -> void:
 		"!don't":
 			if not silent:
 				crash_player.play()
+
 		"!lc":
 			var url = "https://exodrifter.itch.io/lost-contact"
 			if not silent:
@@ -265,6 +266,26 @@ func process_privmsg(data: Dictionary, cache: ImageCache, silent: bool) -> void:
 				notif_player.play()
 				irc.say(channel, url)
 			chat_log.add_notice("📣", url, Color.YELLOW, Color.BLACK)
+
+		"!discord":
+			var url = "https://discord.com/invite/arqFQVt"
+			if not silent:
+				notif_player.play()
+				irc.say(channel, url)
+			chat_log.add_notice("📣", url, Color.YELLOW, Color.BLACK)
+		"!kofi":
+			var url = "https://ko-fi.com/exodrifter"
+			if not silent:
+				notif_player.play()
+				irc.say(channel, url)
+			chat_log.add_notice("📣", url, Color.YELLOW, Color.BLACK)
+		"!patreon":
+			var url = "https://www.patreon.com/exodrifter"
+			if not silent:
+				notif_player.play()
+				irc.say(channel, url)
+			chat_log.add_notice("📣", url, Color.YELLOW, Color.BLACK)
+
 		_:
 			if not silent:
 				notif_player.play()

@@ -6,6 +6,7 @@ var tips: Array[String] = [
 	"discord.gg/arqFQVt",
 	"!don't !listen",
 	"!gd !lc",
+	"!discord !kofi !patreon",
 ]
 var current_index: int
 var elapsed: float
