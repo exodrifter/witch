@@ -290,9 +290,10 @@ func process_privmsg(data: Dictionary, cache: ImageCache, silent: bool) -> void:
 			if not silent:
 				notif_player.play()
 
-	queue_emotes(data)
-	if data.has("bits") and data.bits != null:
-		spawn_bits(data.bits)
+	if not silent:
+		queue_emotes(data)
+		if data.has("bits") and data.bits != null:
+			spawn_bits(data.bits)
 
 func process_user_notice(data: Dictionary, cache: ImageCache, silent: bool) -> void:
 	print(data)
