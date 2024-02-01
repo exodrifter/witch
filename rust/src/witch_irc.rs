@@ -1,6 +1,3 @@
-use twitch_irc::transport::tcp::TCPTransport;
-use twitch_irc::transport::tcp::TLS;
-use std::fs;
 use async_trait::async_trait;
 use chrono::DateTime;
 use core::num::ParseIntError;
@@ -15,6 +12,8 @@ use twitch_irc::message::*;
 use twitch_irc::message::ClearChatAction::*;
 use twitch_irc::message::ServerMessage::*;
 use twitch_irc::SecureTCPTransport;
+use twitch_irc::transport::tcp::TCPTransport;
+use twitch_irc::transport::tcp::TLS;
 use twitch_irc::TwitchIRCClient;
 use twitch_irc::validate::Error;
 
@@ -436,15 +435,15 @@ fn conv_source(source: &IRCMessage) -> Dictionary {
 pub struct CustomTokenStorage;
 
 impl CustomTokenStorage {
-    fn load_secrets() -> Result<(String, String), std::io::Error> {
-        let lines: Vec<String> = fs::read_to_string("/home/exodrifter/.local/share/exodrifter/witch/secrets.txt")?
-            .lines()
-            .map(String::from)
-            .collect();
-
-        let client_id = lines[0].to_string();
-        let client_secret = lines[1].to_string();
-        Ok((client_id, client_secret))
+    fn load_secrets() -> Result<(String, String), String> {
+        match FileAccess::open("user://secrets.txt".into(), ModeFlags::READ) {
+            None => Err("Cannot open file".to_owned()),
+            Some(file) => {
+                let client_id = file.get_line().to_string();
+                let client_secret = file.get_line().to_string();
+                Ok((client_id, client_secret))
+            }
+        }
     }
 }
 
@@ -454,37 +453,38 @@ impl TokenStorage for CustomTokenStorage {
     type UpdateError = String;
 
     async fn load_token(&mut self) -> Result<UserAccessToken, Self::LoadError> {
-        let lines: Vec<String> = fs::read_to_string("/home/exodrifter/.local/share/exodrifter/witch/tokens.txt")
-            .map_err(|x: std::io::Error| x.to_string())?
-            .lines()
-            .map(String::from)
-            .collect();
+        match FileAccess::open("user://tokens.txt".into(), ModeFlags::READ) {
+            None => Err("Cannot open file".to_owned()),
+            Some(file) => {
+                let access_token = file.get_line();
+                let refresh_token = file.get_line();
+                let created_at = str::parse::<i64>(&file.get_line().to_string())
+                    .map_err(|x: ParseIntError| x.to_string())
+                    .map(|x| DateTime::from_timestamp(x, 0))?
+                    .unwrap();
+                let expires_at = str::parse(&file.get_line().to_string())
+                    .map_err(|x: ParseIntError| x.to_string())?;
+                let expires_at = {
+                    if expires_at < 0 {
+                        None
+                    }
+                    else {
+                        DateTime::from_timestamp(expires_at, 0)
+                    }
+                };
 
-        let access_token = &lines[0];
-        let refresh_token = &lines[1];
-        let created_at = str::parse::<i64>(&lines[2]).map_err(|x: ParseIntError| x.to_string())
-            .map(|x| DateTime::from_timestamp(x, 0))?
-            .unwrap();
-        let expires_at = str::parse(&lines[3]).map_err(|x: ParseIntError| x.to_string())?;
-        let expires_at = {
-            if expires_at < 0 {
-                None
-            }
-            else {
-                DateTime::from_timestamp(expires_at, 0)
-            }
-        };
-
-        Ok(UserAccessToken {
-            access_token: access_token.to_string(),
-            refresh_token: refresh_token.to_string(),
-            created_at,
-            expires_at,
-        })
+                Ok(UserAccessToken {
+                    access_token: access_token.to_string(),
+                    refresh_token: refresh_token.to_string(),
+                    created_at,
+                    expires_at,
+                })
+            },
+        }
     }
 
     async fn update_token(&mut self, token: &UserAccessToken) -> Result<(), Self::UpdateError> {
-        match FileAccess::open("res://tokens.txt".into(), ModeFlags::WRITE) {
+        match FileAccess::open("user://tokens.txt".into(), ModeFlags::WRITE) {
             None => Err("Cannot open file".to_owned()),
             Some(mut file) => {
                 file.store_line(token.access_token.clone().into());
