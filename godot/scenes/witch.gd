@@ -279,6 +279,12 @@ func process_privmsg(data: Dictionary, cache: ImageCache, silent: bool) -> void:
 				notif_player.play()
 				irc.say(channel, url)
 			chat_log.add_notice("📣", url, Color.YELLOW, Color.BLACK)
+		"!bandcamp":
+			var url = "https://music.exodrifter.space"
+			if not silent:
+				notif_player.play()
+				irc.say(channel, url)
+			chat_log.add_notice("📣", url, Color.YELLOW, Color.BLACK)
 		"!patreon":
 			var url = "https://www.patreon.com/exodrifter"
 			if not silent:
