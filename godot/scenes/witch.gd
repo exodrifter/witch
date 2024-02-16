@@ -254,7 +254,7 @@ func process_privmsg(data: Dictionary, cache: ImageCache, silent: bool) -> void:
 			if not silent:
 				crash_player.play()
 
-		"!lc":
+		"!ns":
 			var url = "https://exodrifter.itch.io/lost-contact"
 			if not silent:
 				notif_player.play()
