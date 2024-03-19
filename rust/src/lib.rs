@@ -1,4 +1,5 @@
 use godot::prelude::*;
+pub mod witch;
 pub mod witch_irc;
 
 struct ExowitchRust;
