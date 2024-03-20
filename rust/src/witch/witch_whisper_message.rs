@@ -26,15 +26,19 @@ pub struct WitchWhisperMessage {
 }
 
 impl WitchWhisperMessage {
-    pub fn from_message(msg: &WhisperMessage) -> WitchWhisperMessage {
-        WitchWhisperMessage {
+    pub fn new(msg: &WhisperMessage) -> Self {
+        Self {
             recipient_login: msg.recipient_login.to_godot(),
             sender: WitchUserBasics::new_gd(&msg.sender),
             message_text: msg.message_text.to_godot(),
             name_color: conv_color(&msg.name_color),
             badges: WitchBadge::new_array(&msg.badges),
             emotes: WitchEmote::new_array(&msg.emotes),
-            source: Gd::from_object(WitchIRCMessage::from_message(&msg.source)),
+            source: WitchIRCMessage::new_gd(&msg.source),
         }
+    }
+
+    pub fn new_gd(msg: &WhisperMessage) -> Gd<Self> {
+        Gd::from_object(Self::new(&msg))
     }
 }

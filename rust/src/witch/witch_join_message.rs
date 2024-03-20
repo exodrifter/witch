@@ -14,11 +14,15 @@ pub struct WitchJoinMessage {
 }
 
 impl WitchJoinMessage {
-    pub fn from_message(msg: &JoinMessage) -> WitchJoinMessage {
-        WitchJoinMessage {
+    pub fn new(msg: &JoinMessage) -> Self {
+        Self {
             channel_login: msg.channel_login.to_godot(),
             user_login: msg.user_login.to_godot(),
-            source: Gd::from_object(WitchIRCMessage::from_message(&msg.source)),
+            source: WitchIRCMessage::new_gd(&msg.source),
         }
+    }
+
+    pub fn new_gd(msg: &JoinMessage) -> Gd<Self> {
+        Gd::from_object(Self::new(&msg))
     }
 }

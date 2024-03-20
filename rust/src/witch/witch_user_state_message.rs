@@ -24,15 +24,19 @@ pub struct WitchUserStateMessage {
 }
 
 impl WitchUserStateMessage {
-    pub fn from_message(msg: &UserStateMessage) -> WitchUserStateMessage {
-        WitchUserStateMessage {
+    pub fn new(msg: &UserStateMessage) -> Self {
+        Self {
             channel_login: msg.channel_login.to_godot(),
             user_name: msg.user_name.to_godot(),
             badge_info: WitchBadge::new_array(&msg.badge_info),
             badges: WitchBadge::new_array(&msg.badges),
             emote_sets: msg.emote_sets.iter().map(|a| a.to_godot()).collect(),
             name_color: conv_color(&msg.name_color),
-            source: Gd::from_object(WitchIRCMessage::from_message(&msg.source)),
+            source: WitchIRCMessage::new_gd(&msg.source),
         }
+    }
+
+    pub fn new_gd(msg: &UserStateMessage) -> Gd<Self> {
+        Gd::from_object(Self::new(&msg))
     }
 }

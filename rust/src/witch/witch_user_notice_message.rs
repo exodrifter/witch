@@ -40,8 +40,8 @@ pub struct WitchUserNoticeMessage {
 }
 
 impl WitchUserNoticeMessage {
-    pub fn from_message(msg: &UserNoticeMessage) -> WitchUserNoticeMessage {
-        WitchUserNoticeMessage {
+    pub fn new(msg: &UserNoticeMessage) -> Self {
+        Self {
             channel_login: msg.channel_login.to_godot(),
             channel_id: msg.channel_id.to_godot(),
             sender: WitchUserBasics::new_gd(&msg.sender),
@@ -58,8 +58,12 @@ impl WitchUserNoticeMessage {
             name_color: conv_color(&msg.name_color),
             message_id: msg.message_id.to_godot(),
             server_timestamp: msg.server_timestamp.timestamp(),
-            source: Gd::from_object(WitchIRCMessage::from_message(&msg.source)),
+            source: WitchIRCMessage::new_gd(&msg.source),
         }
+    }
+
+    pub fn new_gd(msg: &UserNoticeMessage) -> Gd<Self> {
+        Gd::from_object(Self::new(&msg))
     }
 }
 

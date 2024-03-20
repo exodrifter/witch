@@ -10,9 +10,13 @@ pub struct WitchReconnectMessage {
 }
 
 impl WitchReconnectMessage {
-    pub fn from_message(msg: &ReconnectMessage) -> WitchReconnectMessage {
-        WitchReconnectMessage {
-            source: Gd::from_object(WitchIRCMessage::from_message(&msg.source)),
+    pub fn new(msg: &ReconnectMessage) -> Self {
+        Self {
+            source: WitchIRCMessage::new_gd(&msg.source),
         }
+    }
+
+    pub fn new_gd(msg: &ReconnectMessage) -> Gd<Self> {
+        Gd::from_object(Self::new(&msg))
     }
 }

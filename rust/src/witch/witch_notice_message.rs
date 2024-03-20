@@ -16,8 +16,8 @@ pub struct WitchNoticeMessage {
 }
 
 impl WitchNoticeMessage {
-    pub fn from_message(msg: &NoticeMessage) -> WitchNoticeMessage {
-        WitchNoticeMessage {
+    pub fn new(msg: &NoticeMessage) -> Self {
+        Self {
             channel_login: msg
                 .channel_login
                 .as_ref()
@@ -27,7 +27,11 @@ impl WitchNoticeMessage {
                 .message_id
                 .as_ref()
                 .map_or(GString::new(), |a| a.to_godot()),
-            source: Gd::from_object(WitchIRCMessage::from_message(&msg.source)),
+            source: WitchIRCMessage::new_gd(&msg.source),
         }
+    }
+
+    pub fn new_gd(msg: &NoticeMessage) -> Gd<Self> {
+        Gd::from_object(Self::new(&msg))
     }
 }

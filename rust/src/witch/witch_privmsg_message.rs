@@ -38,8 +38,8 @@ pub struct WitchPrivmsgMessage {
 }
 
 impl WitchPrivmsgMessage {
-    pub fn from_message(msg: &PrivmsgMessage) -> WitchPrivmsgMessage {
-        WitchPrivmsgMessage {
+    pub fn new(msg: &PrivmsgMessage) -> Self {
+        Self {
             channel_login: msg.channel_login.to_godot(),
             channel_id: msg.channel_id.to_godot(),
             message_text: msg.message_text.to_godot(),
@@ -52,7 +52,11 @@ impl WitchPrivmsgMessage {
             emotes: WitchEmote::new_array(&msg.emotes),
             message_id: msg.message_id.to_godot(),
             server_timestamp: msg.server_timestamp.timestamp(),
-            source: Gd::from_object(WitchIRCMessage::from_message(&msg.source)),
+            source: WitchIRCMessage::new_gd(&msg.source),
         }
+    }
+
+    pub fn new_gd(msg: &PrivmsgMessage) -> Gd<Self> {
+        Gd::from_object(Self::new(&msg))
     }
 }

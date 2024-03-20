@@ -19,14 +19,18 @@ pub struct WitchClearChatMessage {
 }
 
 impl WitchClearChatMessage {
-    pub fn from_message(msg: &ClearChatMessage) -> WitchClearChatMessage {
-        WitchClearChatMessage {
+    pub fn new(msg: &ClearChatMessage) -> Self {
+        Self {
             channel_login: msg.channel_login.to_godot(),
             channel_id: msg.channel_id.to_godot(),
-            action: Gd::from_object(WitchClearChatAction::new(&msg.action)),
+            action: WitchClearChatAction::new_gd(&msg.action),
             server_timestamp: msg.server_timestamp.timestamp(),
-            source: Gd::from_object(WitchIRCMessage::from_message(&msg.source)),
+            source: WitchIRCMessage::new_gd(&msg.source),
         }
+    }
+
+    pub fn new_gd(msg: &ClearChatMessage) -> Gd<Self> {
+        Gd::from_object(Self::new(&msg))
     }
 }
 
@@ -43,9 +47,9 @@ pub struct WitchClearChatAction {
 }
 
 impl WitchClearChatAction {
-    fn new(action: &ClearChatAction) -> WitchClearChatAction {
+    fn new(action: &ClearChatAction) -> Self {
         match action {
-            ClearChatAction::ChatCleared => WitchClearChatAction {
+            ClearChatAction::ChatCleared => Self {
                 action_type: WitchClearChatActionType::ChatCleared,
                 user_login: GString::new(),
                 user_id: GString::new(),
@@ -55,7 +59,7 @@ impl WitchClearChatAction {
             ClearChatAction::UserBanned {
                 user_login,
                 user_id,
-            } => WitchClearChatAction {
+            } => Self {
                 action_type: WitchClearChatActionType::UserBanned,
                 user_login: user_login.to_godot(),
                 user_id: user_id.to_godot(),
@@ -66,13 +70,17 @@ impl WitchClearChatAction {
                 user_login,
                 user_id,
                 timeout_length,
-            } => WitchClearChatAction {
+            } => Self {
                 action_type: WitchClearChatActionType::UserTimedOut,
                 user_login: user_login.to_godot(),
                 user_id: user_id.to_godot(),
                 timeout_length: conv_u64(timeout_length.as_secs()),
             },
         }
+    }
+
+    fn new_gd(action: &ClearChatAction) -> Gd<Self> {
+        Gd::from_object(Self::new(&action))
     }
 }
 

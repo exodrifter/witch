@@ -10,18 +10,18 @@ pub struct WitchBadge {
 }
 
 impl WitchBadge {
-    pub fn new(badge: &Badge) -> WitchBadge {
-        WitchBadge {
+    pub fn new(badge: &Badge) -> Self {
+        Self {
             name: badge.name.to_godot(),
             version: badge.version.to_godot(),
         }
     }
 
-    pub fn new_gd(badge: &Badge) -> Gd<WitchBadge> {
+    pub fn new_gd(badge: &Badge) -> Gd<Self> {
         Gd::from_object(Self::new(&badge))
     }
 
-    pub fn new_array(vec: &Vec<Badge>) -> Array<Gd<WitchBadge>> {
-        vec.iter().map(|a| WitchBadge::new_gd(a)).collect()
+    pub fn new_array(vec: &Vec<Badge>) -> Array<Gd<Self>> {
+        vec.iter().map(|a| Self::new_gd(a)).collect()
     }
 }

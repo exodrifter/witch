@@ -13,18 +13,20 @@ pub struct WitchEmote {
 }
 
 impl WitchEmote {
-    pub fn new(emote: &Emote) -> WitchEmote {
-        WitchEmote {
+    pub fn new(emote: &Emote) -> Self {
+        Self {
             id: emote.id.to_godot(),
-            char_range: Gd::from_object(WitchRange::new(&emote.char_range)),
+            char_range: WitchRange::new_gd(&emote.char_range),
             code: emote.code.to_godot(),
         }
     }
 
-    pub fn new_array(vec: &Vec<Emote>) -> Array<Gd<WitchEmote>> {
-        vec.iter()
-            .map(|a| Gd::from_object(WitchEmote::new(a)))
-            .collect()
+    pub fn new_gd(emote: &Emote) -> Gd<Self> {
+        Gd::from_object(Self::new(&emote))
+    }
+
+    pub fn new_array(vec: &Vec<Emote>) -> Array<Gd<Self>> {
+        vec.iter().map(|a| Self::new_gd(a)).collect()
     }
 }
 
@@ -37,10 +39,14 @@ struct WitchRange {
 }
 
 impl WitchRange {
-    fn new(range: &Range<usize>) -> WitchRange {
-        WitchRange {
+    fn new(range: &Range<usize>) -> Self {
+        Self {
             start: i64::try_from(range.start).unwrap_or(i64::MAX),
             end: i64::try_from(range.end).unwrap_or(i64::MAX),
         }
+    }
+
+    fn new_gd(range: &Range<usize>) -> Gd<Self> {
+        Gd::from_object(Self::new(&range))
     }
 }

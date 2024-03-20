@@ -10,9 +10,13 @@ pub struct WitchPingMessage {
 }
 
 impl WitchPingMessage {
-    pub fn from_message(msg: &PingMessage) -> WitchPingMessage {
-        WitchPingMessage {
-            source: Gd::from_object(WitchIRCMessage::from_message(&msg.source)),
+    pub fn new(msg: &PingMessage) -> Self {
+        Self {
+            source: WitchIRCMessage::new_gd(&msg.source),
         }
+    }
+
+    pub fn new_gd(msg: &PingMessage) -> Gd<Self> {
+        Gd::from_object(Self::new(&msg))
     }
 }

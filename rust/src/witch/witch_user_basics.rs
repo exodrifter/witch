@@ -12,15 +12,15 @@ pub struct WitchUserBasics {
 }
 
 impl WitchUserBasics {
-    pub fn new(sender: &TwitchUserBasics) -> WitchUserBasics {
-        WitchUserBasics {
+    pub fn new(sender: &TwitchUserBasics) -> Self {
+        Self {
             id: sender.id.to_godot(),
             login: sender.id.to_godot(),
             name: sender.name.to_godot(),
         }
     }
 
-    pub fn new_gd(sender: &TwitchUserBasics) -> Gd<WitchUserBasics> {
+    pub fn new_gd(sender: &TwitchUserBasics) -> Gd<Self> {
         Gd::from_object(Self::new(&sender))
     }
 }

@@ -16,8 +16,8 @@ pub struct WitchIRCMessage {
 }
 
 impl WitchIRCMessage {
-    pub fn from_message(msg: &IRCMessage) -> WitchIRCMessage {
-        WitchIRCMessage {
+    pub fn new(msg: &IRCMessage) -> Self {
+        Self {
             tags: msg
                 .tags
                 .0
@@ -28,6 +28,10 @@ impl WitchIRCMessage {
             command: msg.command.to_godot(),
             params: msg.params.iter().map(|a| a.to_godot()).collect(),
         }
+    }
+
+    pub fn new_gd(msg: &IRCMessage) -> Gd<Self> {
+        Gd::from_object(Self::new(&msg))
     }
 }
 

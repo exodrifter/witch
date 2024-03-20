@@ -22,15 +22,19 @@ pub struct WitchClearMessage {
 }
 
 impl WitchClearMessage {
-    pub fn from_message(msg: &ClearMsgMessage) -> WitchClearMessage {
-        WitchClearMessage {
+    pub fn new(msg: &ClearMsgMessage) -> Self {
+        Self {
             channel_login: msg.channel_login.to_godot(),
             sender_login: msg.sender_login.to_godot(),
             message_id: msg.message_id.to_godot(),
             message_text: msg.message_text.to_godot(),
             is_action: msg.is_action,
             server_timestamp: msg.server_timestamp.timestamp(),
-            source: Gd::from_object(WitchIRCMessage::from_message(&msg.source)),
+            source: WitchIRCMessage::new_gd(&msg.source),
         }
+    }
+
+    pub fn new_gd(msg: &ClearMsgMessage) -> Gd<Self> {
+        Gd::from_object(Self::new(&msg))
     }
 }
