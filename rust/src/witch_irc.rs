@@ -5,14 +5,14 @@ use godot::engine::file_access::*;
 use godot::engine::FileAccess;
 use godot::prelude::*;
 use tokio::sync::mpsc::UnboundedReceiver;
-use twitch_irc::ClientConfig;
 use twitch_irc::login::{RefreshingLoginCredentials, TokenStorage, UserAccessToken};
 use twitch_irc::message::*;
-use twitch_irc::SecureTCPTransport;
 use twitch_irc::transport::tcp::TCPTransport;
 use twitch_irc::transport::tcp::TLS;
-use twitch_irc::TwitchIRCClient;
 use twitch_irc::validate::Error;
+use twitch_irc::ClientConfig;
+use twitch_irc::SecureTCPTransport;
+use twitch_irc::TwitchIRCClient;
 
 use crate::witch::conv_message;
 
@@ -41,7 +41,11 @@ impl WitchIRC {
             Ok(()) => dict! {
                 "type": "success",
             },
-            Err(Error::InvalidCharacter { login, position, character }) => dict! {
+            Err(Error::InvalidCharacter {
+                login,
+                position,
+                character,
+            }) => dict! {
                 "type": "invalid_character",
                 "login": login,
                 "position": usize_to_godot(position),
@@ -80,7 +84,7 @@ impl WitchIRC {
             Err(err) => dict! {
                 "type": "error",
                 "error": err.to_string(),
-            }
+            },
         }
     }
 }
@@ -93,12 +97,18 @@ impl WitchIRC {
             let (client_id, client_secret) = CustomTokenStorage::load_secrets().unwrap();
             let credentials = RefreshingLoginCredentials::init(client_id, client_secret, storage);
             let config = ClientConfig::new_simple(credentials);
-            let (incoming_messages, client) =
-                TwitchIRCClient::<SecureTCPTransport, RefreshingLoginCredentials<CustomTokenStorage>>::new(config);
+            let (incoming_messages, client) = TwitchIRCClient::<
+                SecureTCPTransport,
+                RefreshingLoginCredentials<CustomTokenStorage>,
+            >::new(config);
             (incoming_messages, client)
         });
 
-        WitchIRC { _tokio_runtime: tr, incoming_messages, client }
+        WitchIRC {
+            _tokio_runtime: tr,
+            incoming_messages,
+            client,
+        }
     }
 
     pub fn _join(&mut self, channel: String) -> Result<(), Error> {
@@ -120,9 +130,18 @@ impl WitchIRC {
         }
     }
 
-    pub fn _say(&mut self, channel_login: &str, message: &str) -> Result<(), twitch_irc::Error<TCPTransport<TLS>, RefreshingLoginCredentials<CustomTokenStorage>>> {
+    pub fn _say(
+        &mut self,
+        channel_login: &str,
+        message: &str,
+    ) -> Result<
+        (),
+        twitch_irc::Error<TCPTransport<TLS>, RefreshingLoginCredentials<CustomTokenStorage>>,
+    > {
         self._tokio_runtime.block_on(async {
-            self.client.say(channel_login.to_string(), message.to_string()).await
+            self.client
+                .say(channel_login.to_string(), message.to_string())
+                .await
         })
     }
 }
@@ -196,8 +215,7 @@ impl TokenStorage for CustomTokenStorage {
                 let expires_at = {
                     if expires_at < 0 {
                         None
-                    }
-                    else {
+                    } else {
                         DateTime::from_timestamp(expires_at, 0)
                     }
                 };
@@ -208,7 +226,7 @@ impl TokenStorage for CustomTokenStorage {
                     created_at,
                     expires_at,
                 })
-            },
+            }
         }
     }
 
@@ -219,9 +237,16 @@ impl TokenStorage for CustomTokenStorage {
                 file.store_line(token.access_token.clone().into());
                 file.store_line(token.refresh_token.clone().into());
                 file.store_line(token.created_at.timestamp().to_string().into());
-                file.store_line(token.expires_at.map(|t| t.timestamp()).unwrap_or(-1).to_string().into());
+                file.store_line(
+                    token
+                        .expires_at
+                        .map(|t| t.timestamp())
+                        .unwrap_or(-1)
+                        .to_string()
+                        .into(),
+                );
                 Ok(())
-            },
+            }
         }
     }
 }
