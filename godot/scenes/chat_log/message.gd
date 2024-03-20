@@ -9,7 +9,7 @@ var text: RichTextLabel:
 	get:
 		return $Text
 
-func setup_privmsg(data: WitchPrivmsgMessage, cache: ImageCache) -> void:
+func setup_privmsg(cache: ImageCache, data: WitchPrivmsgMessage) -> void:
 	if data.badges.any(func(a: WitchBadge): return a.name == "broadcaster"):
 		color_bar.color = Color.RED
 	elif data.source.tags.has("mod"):
@@ -67,13 +67,13 @@ func setup_privmsg(data: WitchPrivmsgMessage, cache: ImageCache) -> void:
 	text.pop_all()
 
 	# Get notified when emotes are loaded if we're missing some
-	var setup = setup_privmsg.bind(data, cache)
+	var setup = setup_privmsg.bind(data)
 	if missing_emotes and not cache.emote_loaded.is_connected(setup):
 		cache.emote_loaded.connect(setup)
 	if not missing_emotes and cache.emote_loaded.is_connected(setup):
 		cache.emote_loaded.disconnect(setup)
 
-func setup_user_notice(data: WitchUserNoticeMessage, cache: ImageCache) -> void:
+func setup_user_notice(cache: ImageCache, data: WitchUserNoticeMessage) -> void:
 	if data.badges.any(func(a: WitchBadge): return a.name == "broadcaster"):
 		color_bar.color = Color.RED
 	elif data.source.tags.has("mod"):
