@@ -19,4 +19,8 @@ impl WitchUserBasics {
             name: sender.name.to_godot(),
         }
     }
+
+    pub fn new_gd(sender: &TwitchUserBasics) -> Gd<WitchUserBasics> {
+        Gd::from_object(Self::new(&sender))
+    }
 }
