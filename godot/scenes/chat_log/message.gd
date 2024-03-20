@@ -10,6 +10,8 @@ var text: RichTextLabel:
 		return $Text
 
 func setup_privmsg(cache: ImageCache, data: WitchPrivmsgMessage) -> void:
+	setup_with_privmsg(data)
+
 	if data.badges.any(func(a: WitchBadge): return a.name == "broadcaster"):
 		color_bar.color = Color.RED
 	elif data.source.tags.has("mod"):
@@ -74,6 +76,8 @@ func setup_privmsg(cache: ImageCache, data: WitchPrivmsgMessage) -> void:
 		cache.emote_loaded.disconnect(setup)
 
 func setup_user_notice(cache: ImageCache, data: WitchUserNoticeMessage) -> void:
+	setup_with_user_notice(data)
+
 	if data.badges.any(func(a: WitchBadge): return a.name == "broadcaster"):
 		color_bar.color = Color.RED
 	elif data.source.tags.has("mod"):

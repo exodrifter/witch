@@ -187,39 +187,40 @@ func process_message(data: RefCounted, cache: ImageCache, silent: bool) -> void:
 		process_user_notice(data, cache, silent)
 
 func process_clear_chat(data: WitchClearChatMessage) -> void:
-	match data.action.type:
-		"chat_cleared":
-			chat_log.remove_by_channel(data.channel_login)
-			var notice: Entry = chat_log.add_notice(
-				"⌫", "chat cleared",
-				Color(.1, .1, .1), Color.WHITE
-			)
-			notice.name = "Clear Notice"
-			notice.channel_login = data.channel_login
-		"user_banned":
-			chat_log.remove_by_user_login(
-				data.channel_login,
-				data.action.user_login
-			)
-			var notice = chat_log.add_notice(
-				"🚫", "{user} banned".format({
-					"user": data.action.user_login,
-				}),
-				Color(.1, .1, .1), Color.WHITE
-			)
-			notice.name = "Ban Notice"
-			notice.channel_login = data.channel_login
-		"user_timed_out":
-			chat_log.remove_by_user_id(data.channel_login, data.action.user_id)
-			var notice = chat_log.add_notice(
-				"⏰", "{user} timeout {duration}s".format({
-					"user": data.action.user_login,
-					"duration": data.action.timeout_length,
-				}),
-				Color(.1, .1, .1), Color.WHITE
-			)
-			notice.name = "Timeout Notice"
-			notice.channel_login = data.channel_login
+	if data.action is WitchChatClearedAction:
+		chat_log.remove_by_channel(data.channel_login)
+		var notice: Entry = chat_log.add_notice(
+			"⌫", "chat cleared",
+			Color(.1, .1, .1), Color.WHITE
+		)
+		notice.name = "Clear Notice"
+		notice.channel_login = data.channel_login
+	elif data.action is WitchUserBannedAction:
+		var action := data.action as WitchUserBannedAction
+		chat_log.remove_by_user_login(
+			data.channel_login,
+			action.user_login
+		)
+		var notice = chat_log.add_notice(
+			"🚫", "{user} banned".format({
+				"user": action.user_login,
+			}),
+			Color(.1, .1, .1), Color.WHITE
+		)
+		notice.name = "Ban Notice"
+		notice.channel_login = data.channel_login
+	elif data.action is WitchUserTimedOutAction:
+		var action := data.action as WitchUserTimedOutAction
+		chat_log.remove_by_user_id(data.channel_login, action.user_id)
+		var notice = chat_log.add_notice(
+			"⏰", "{user} timeout {duration}s".format({
+				"user": action.user_login,
+				"duration": action.timeout_length,
+			}),
+			Color(.1, .1, .1), Color.WHITE
+		)
+		notice.name = "Timeout Notice"
+		notice.channel_login = data.channel_login
 
 func process_join(data: WitchJoinMessage) -> void:
 	var notice = chat_log.add_notice(

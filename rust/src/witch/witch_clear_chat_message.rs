@@ -11,7 +11,7 @@ pub struct WitchClearChatMessage {
     #[var]
     channel_id: GString,
     #[var]
-    action: Gd<WitchClearChatAction>,
+    action: Gd<RefCounted>,
     #[var]
     server_timestamp: i64,
     #[var]
@@ -23,7 +23,7 @@ impl WitchClearChatMessage {
         Self {
             channel_login: msg.channel_login.to_godot(),
             channel_id: msg.channel_id.to_godot(),
-            action: WitchClearChatAction::new_gd(&msg.action),
+            action: conv_clear_chat_action(&msg.action),
             server_timestamp: msg.server_timestamp.timestamp(),
             source: WitchIRCMessage::new_gd(&msg.source),
         }
@@ -35,9 +35,18 @@ impl WitchClearChatMessage {
 }
 
 #[derive(GodotClass)]
-pub struct WitchClearChatAction {
+pub struct WitchChatClearedAction;
+
+#[derive(GodotClass)]
+pub struct WitchUserBannedAction {
     #[var]
-    action_type: WitchClearChatActionType,
+    user_login: GString,
+    #[var]
+    user_id: GString,
+}
+
+#[derive(GodotClass)]
+pub struct WitchUserTimedOutAction {
     #[var]
     user_login: GString,
     #[var]
@@ -46,48 +55,27 @@ pub struct WitchClearChatAction {
     timeout_length: i64,
 }
 
-impl WitchClearChatAction {
-    fn new(action: &ClearChatAction) -> Self {
-        match action {
-            ClearChatAction::ChatCleared => Self {
-                action_type: WitchClearChatActionType::ChatCleared,
-                user_login: GString::new(),
-                user_id: GString::new(),
-                timeout_length: 0,
-            },
+fn conv_clear_chat_action(action: &ClearChatAction) -> Gd<RefCounted> {
+    match action {
+        ClearChatAction::ChatCleared =>
+            Gd::from_object(WitchChatClearedAction {}).upcast(),
 
-            ClearChatAction::UserBanned {
-                user_login,
-                user_id,
-            } => Self {
-                action_type: WitchClearChatActionType::UserBanned,
-                user_login: user_login.to_godot(),
-                user_id: user_id.to_godot(),
-                timeout_length: 0,
-            },
+        ClearChatAction::UserBanned {
+            user_login,
+            user_id,
+        } => Gd::from_object(WitchUserBannedAction {
+            user_login: user_login.to_godot(),
+            user_id: user_id.to_godot(),
+        }).upcast(),
 
-            ClearChatAction::UserTimedOut {
-                user_login,
-                user_id,
-                timeout_length,
-            } => Self {
-                action_type: WitchClearChatActionType::UserTimedOut,
-                user_login: user_login.to_godot(),
-                user_id: user_id.to_godot(),
-                timeout_length: conv_u64(timeout_length.as_secs()),
-            },
-        }
+        ClearChatAction::UserTimedOut {
+            user_login,
+            user_id,
+            timeout_length,
+        } => Gd::from_object(WitchUserTimedOutAction {
+            user_login: user_login.to_godot(),
+            user_id: user_id.to_godot(),
+            timeout_length: conv_u64(timeout_length.as_secs()),
+        }).upcast(),
     }
-
-    fn new_gd(action: &ClearChatAction) -> Gd<Self> {
-        Gd::from_object(Self::new(&action))
-    }
-}
-
-#[derive(Var)]
-#[repr(i64)]
-enum WitchClearChatActionType {
-    ChatCleared = 0,
-    UserBanned = 1,
-    UserTimedOut = 2,
 }
