@@ -2,8 +2,8 @@ use godot::prelude::*;
 use twitch_irc::message::*;
 
 use super::helper::*;
-use super::witch_irc_message::*;
 use super::witch_badge::*;
+use super::witch_irc_message::*;
 
 #[derive(GodotClass)]
 pub struct WitchGlobalUserStateMessage {
@@ -31,9 +31,7 @@ impl WitchGlobalUserStateMessage {
             badge_info: WitchBadge::new_array(&msg.badge_info),
             badges: WitchBadge::new_array(&msg.badges),
             emote_sets: msg.emote_sets.iter().map(|x| x.to_godot()).collect(),
-            name_color: msg
-                .name_color
-                .map_or(Color::TRANSPARENT_WHITE, |x| conv_color(&x)),
+            name_color: conv_color(&msg.name_color),
             source: Gd::from_object(WitchIRCMessage::from_message(&msg.source)),
         }
     }

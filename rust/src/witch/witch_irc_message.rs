@@ -1,8 +1,6 @@
 use godot::prelude::*;
 use twitch_irc::message::*;
 
-use super::helper::*;
-
 #[derive(GodotClass)]
 pub struct WitchIRCMessage {
     #[var]
@@ -22,7 +20,12 @@ impl WitchIRCMessage {
                 .tags
                 .0
                 .iter()
-                .map(|(k, v)| (k.to_variant(), variant_or_nil(v)))
+                .map(|(k, v)| {
+                    (
+                        k.to_variant(),
+                        v.as_ref().map_or(Variant::nil(), |x| x.to_variant()),
+                    )
+                })
                 .collect(),
             prefix: Gd::from_object(match &msg.prefix {
                 Some(IRCPrefix::HostOnly { host }) => WitchIRCPrefix::host_only(&host),

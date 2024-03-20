@@ -1,6 +1,15 @@
 mod helper;
 pub mod witch_badge;
-pub mod witch_clear_chat;
+pub mod witch_clear_chat_message;
 pub mod witch_clear_message;
-pub mod witch_global_user_state;
+pub mod witch_global_user_state_message;
 pub mod witch_irc_message;
+pub mod witch_join_message;
+pub mod witch_notice_message;
+pub mod witch_part_message;
+pub mod witch_ping_message;
+pub mod witch_pong_message;
+pub mod witch_privmsg_message;
+pub mod witch_reconnect_message;
+pub mod witch_room_state_message;
+pub mod witch_user_basics;
