@@ -1,6 +1,7 @@
 use godot::prelude::*;
 use twitch_irc::message::*;
 
+use super::helper::*;
 use super::witch_irc_message::*;
 
 #[derive(GodotClass)]
@@ -69,7 +70,7 @@ impl WitchClearChatAction {
                 action_type: WitchClearChatActionType::UserTimedOut,
                 user_login: user_login.to_godot(),
                 user_id: user_id.to_godot(),
-                timeout_length: i64::try_from(timeout_length.as_secs()).unwrap_or(i64::MAX),
+                timeout_length: conv_u64(timeout_length.as_secs()),
             },
         }
     }

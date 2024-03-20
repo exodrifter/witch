@@ -17,9 +17,11 @@ impl WitchBadge {
         }
     }
 
+    pub fn new_gd(badge: &Badge) -> Gd<WitchBadge> {
+        Gd::from_object(Self::new(&badge))
+    }
+
     pub fn new_array(vec: &Vec<Badge>) -> Array<Gd<WitchBadge>> {
-        vec.iter()
-            .map(|a| Gd::from_object(WitchBadge::new(a)))
-            .collect()
+        vec.iter().map(|a| WitchBadge::new_gd(a)).collect()
     }
 }

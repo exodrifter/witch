@@ -21,12 +21,12 @@ impl WitchNoticeMessage {
             channel_login: msg
                 .channel_login
                 .as_ref()
-                .map_or(GString::new(), |x| x.to_godot()),
+                .map_or(GString::new(), |a| a.to_godot()),
             message_text: msg.message_text.to_godot(),
             message_id: msg
                 .message_id
                 .as_ref()
-                .map_or(GString::new(), |x| x.to_godot()),
+                .map_or(GString::new(), |a| a.to_godot()),
             source: Gd::from_object(WitchIRCMessage::from_message(&msg.source)),
         }
     }

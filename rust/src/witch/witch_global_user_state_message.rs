@@ -30,7 +30,7 @@ impl WitchGlobalUserStateMessage {
             user_name: msg.user_name.to_godot(),
             badge_info: WitchBadge::new_array(&msg.badge_info),
             badges: WitchBadge::new_array(&msg.badges),
-            emote_sets: msg.emote_sets.iter().map(|x| x.to_godot()).collect(),
+            emote_sets: msg.emote_sets.iter().map(|a| a.to_godot()).collect(),
             name_color: conv_color(&msg.name_color),
             source: Gd::from_object(WitchIRCMessage::from_message(&msg.source)),
         }

@@ -47,7 +47,7 @@ impl WitchPrivmsgMessage {
             sender: Gd::from_object(WitchUserBasics::new(&msg.sender)),
             badge_info: WitchBadge::new_array(&msg.badge_info),
             badges: WitchBadge::new_array(&msg.badges),
-            bits: i64::try_from(msg.bits.unwrap_or(0)).unwrap_or(i64::MAX),
+            bits: conv_u64(msg.bits.unwrap_or(0)),
             name_color: conv_color(&msg.name_color),
             emotes: WitchEmote::new_array(&msg.emotes),
             message_id: msg.message_id.to_godot(),

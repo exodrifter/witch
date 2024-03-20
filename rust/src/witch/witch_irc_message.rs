@@ -1,12 +1,14 @@
 use godot::prelude::*;
 use twitch_irc::message::*;
 
+use super::helper::*;
+
 #[derive(GodotClass)]
 pub struct WitchIRCMessage {
     #[var]
     tags: Dictionary,
     #[var]
-    prefix: Gd<WitchIRCPrefix>,
+    prefix: Option<Gd<WitchIRCPrefix>>,
     #[var]
     command: GString,
     #[var]
@@ -20,20 +22,9 @@ impl WitchIRCMessage {
                 .tags
                 .0
                 .iter()
-                .map(|(k, v)| {
-                    (
-                        k.to_variant(),
-                        v.as_ref().map_or(Variant::nil(), |x| x.to_variant()),
-                    )
-                })
+                .map(|(k, v)| (k.to_variant(), variant_or_nil(v)))
                 .collect(),
-            prefix: Gd::from_object(match &msg.prefix {
-                Some(IRCPrefix::HostOnly { host }) => WitchIRCPrefix::host_only(&host),
-                Some(IRCPrefix::Full { nick, user, host }) => {
-                    WitchIRCPrefix::full(&nick, &user, &host)
-                }
-                None => WitchIRCPrefix::none(),
-            }),
+            prefix: msg.prefix.as_ref().map(|a| WitchIRCPrefix::new_gd(&a)),
             command: msg.command.to_godot(),
             params: msg.params.iter().map(|a| a.to_godot()).collect(),
         }
@@ -51,27 +42,22 @@ pub struct WitchIRCPrefix {
 }
 
 impl WitchIRCPrefix {
-    fn host_only(host: &String) -> WitchIRCPrefix {
-        WitchIRCPrefix {
-            nick: GString::new(),
-            user: GString::new(),
-            host: host.to_godot(),
+    fn new(prefix: &IRCPrefix) -> WitchIRCPrefix {
+        match prefix {
+            IRCPrefix::HostOnly { host } => WitchIRCPrefix {
+                nick: GString::new(),
+                user: GString::new(),
+                host: host.to_godot(),
+            },
+            IRCPrefix::Full { nick, user, host } => WitchIRCPrefix {
+                nick: nick.to_godot(),
+                user: user.as_ref().map_or(GString::new(), |x| x.to_godot()),
+                host: host.as_ref().map_or(GString::new(), |x| x.to_godot()),
+            },
         }
     }
 
-    fn full(nick: &String, user: &Option<String>, host: &Option<String>) -> WitchIRCPrefix {
-        WitchIRCPrefix {
-            nick: nick.to_godot(),
-            user: user.as_ref().map_or(GString::new(), |x| x.to_godot()),
-            host: host.as_ref().map_or(GString::new(), |x| x.to_godot()),
-        }
-    }
-
-    fn none() -> WitchIRCPrefix {
-        WitchIRCPrefix {
-            nick: GString::new(),
-            user: GString::new(),
-            host: GString::new(),
-        }
+    fn new_gd(prefix: &IRCPrefix) -> Gd<WitchIRCPrefix> {
+        Gd::from_object(Self::new(prefix))
     }
 }
