@@ -173,20 +173,20 @@ func _process(delta):
 
 #region Message Processing
 
-func process_message(data: Dictionary, cache: ImageCache, silent: bool) -> void:
-	match data.type:
-		"clear_chat":
-			process_clear_chat(data)
-		"clear_msg":
-			chat_log.remove_by_id(data.channel_login, data.message_id)
-		"join":
-			process_join(data)
-		"privmsg":
-			process_privmsg(data, cache, silent)
-		"user_notice":
-			process_user_notice(data, cache, silent)
+func process_message(data: RefCounted, cache: ImageCache, silent: bool) -> void:
+	if data is WitchClearChatMessage:
+		process_clear_chat(data)
+	elif data is WitchClearMessage:
+		var msg := data as WitchClearMessage
+		chat_log.remove_by_id(msg.channel_login, data.message_id)
+	elif data is WitchJoinMessage:
+		process_join(data)
+	elif data is WitchPrivmsgMessage:
+		process_privmsg(data, cache, silent)
+	elif data is WitchUserNoticeMessage:
+		process_user_notice(data, cache, silent)
 
-func process_clear_chat(data: Dictionary) -> void:
+func process_clear_chat(data: WitchClearChatMessage) -> void:
 	match data.action.type:
 		"chat_cleared":
 			chat_log.remove_by_channel(data.channel_login)
@@ -221,7 +221,7 @@ func process_clear_chat(data: Dictionary) -> void:
 			notice.name = "Timeout Notice"
 			notice.channel_login = data.channel_login
 
-func process_join(data: Dictionary) -> void:
+func process_join(data: WitchJoinMessage) -> void:
 	var notice = chat_log.add_notice(
 		"🚪", "#{channel_login}".format({
 			"channel_login": data.channel_login,
@@ -230,12 +230,10 @@ func process_join(data: Dictionary) -> void:
 	)
 	notice.channel_login = data.channel_login
 
-func process_privmsg(data: Dictionary, cache: ImageCache, silent: bool) -> void:
+func process_privmsg(data: WitchPrivmsgMessage, cache: ImageCache, silent: bool) -> void:
 	# Check if this is a first-time chatter
-	if data.has("source") and \
-			data["source"].has("tags") and \
-			data["source"]["tags"].has("first-msg") and\
-			data["source"]["tags"]["first-msg"] == "1":
+	if data.source.tags.has("first-msg") and \
+			data.source.tags["first-msg"] == "1":
 		chat_log.add_notice(
 			"✨", "{user}: {message}".format({
 				"user": data.sender.name,
@@ -244,7 +242,7 @@ func process_privmsg(data: Dictionary, cache: ImageCache, silent: bool) -> void:
 			Color.DODGER_BLUE, Color.WHITE
 		).setup_with_privmsg(data)
 	else:
-		chat_log.add_message(data, cache).setup_with_privmsg(data)
+		chat_log.add_privmsg(data, cache)
 
 	match data.message_text.split(" ", true, 1)[0]:
 		"!listen":
@@ -297,93 +295,96 @@ func process_privmsg(data: Dictionary, cache: ImageCache, silent: bool) -> void:
 				notif_player.play()
 
 	if not silent:
-		queue_emotes(data)
-		if data.has("bits") and data.bits != null:
-			spawn_bits(data.bits)
+		queue_emotes(data.emotes)
+		spawn_bits(data.bits)
 
-func process_user_notice(data: Dictionary, cache: ImageCache, silent: bool) -> void:
-	print(data)
-	match data.event.type:
-		"sub_or_resub":
+func process_user_notice(data: WitchUserNoticeMessage, cache: ImageCache, silent: bool) -> void:
+	if data.event is WitchSubOrResubEvent:
+		var event := data.event as WitchSubOrResubEvent
+		if not silent:
+			sub_player.play_random()
+		chat_log.add_notice(
+			"🟊", "[wave]{name} {type} {months}mo[/wave]".format({
+				"name": data.sender.name,
+				"type": _get_sub_plan(event.sub_plan),
+				"months": event.cumulative_months,
+			}),
+			Color.PURPLE, Color.WHITE
+		).setup_with_user_notice(data)
+	elif data.event is WitchRaidEvent:
+		var event := data.event as WitchRaidEvent
+		if not silent:
+			raid_player.play_random()
+		chat_log.add_notice(
+			"⚑", "[wave]{raider} +{viewers}👁[/wave]".format({
+				"raider": data.sender.name,
+				"viewers": event.viewer_count,
+			}),
+			Color.PURPLE, Color.WHITE
+		).setup_with_user_notice(data)
+	elif data.event is WitchSubGiftEvent:
+		var event := data.event as WitchSubGiftEvent
+		if not silent:
+			sub_player.play_random()
+		chat_log.add_notice(
+			"📦", "[wave]{name} {type} {months}mo[/wave]".format({
+				"name": data.sender.name,
+				"type": _get_sub_plan(event.sub_plan),
+				"months": event.cumulative_months,
+			}),
+			Color.PURPLE, Color.WHITE
+		).setup_with_user_notice(data)
+	elif data.event is WitchSubMysteryGiftEvent:
+		var event := data.event as WitchSubGiftEvent
+		chat_log.add_notice(
+			"🚚", "[wave]{name} +{count}📦 {type}[/wave]".format({
+				"name": data.sender.name,
+				"count": event.mass_gift_count,
+				"type": _get_sub_plan(event.sub_plan),
+			}),
+			Color.PURPLE, Color.WHITE
+		).setup_with_user_notice(data)
+	elif data.event is WitchAnonSubMysteryGiftEvent:
+		var event := data.event as WitchAnonSubMysteryGiftEvent
+		chat_log.add_notice(
+			"🚚", "[wave]{name} +{count}📦 {type}[/wave]".format({
+				"name": data.sender.name,
+				"count": event.mass_gift_count,
+				"type": _get_sub_plan(event.sub_plan),
+			}),
+			Color.PURPLE, Color.WHITE
+		).setup_with_user_notice(data)
+	elif data.event is WitchBitsBadgeTierEvent:
+		var event := data.event as WitchBitsBadgeTierEvent
+		chat_log.add_notice(
+			"⬙", "[wave]{name} {threshold}![/wave]".format({
+				"name": data.sender.name,
+				"threshold": event.threshold,
+			}),
+			Color.PURPLE, Color.WHITE
+		).setup_with_user_notice(data)
+	else:
+		if data.source.tags.has("msg-id") and \
+				data.source.tags["msg-id"] == "announcement":
 			if not silent:
-				sub_player.play_random()
+				notif_player.play() # TODO: Announcement sound
+				queue_emotes(data.emotes)
 			chat_log.add_notice(
-				"🟊", "[wave]{name} {type} {months}mo[/wave]".format({
+				"📣", "{name}: {message}".format({
 					"name": data.sender.name,
-					"type": _get_sub_plan(data.event.sub_plan),
-					"months": data.event.cumulative_months,
+					"message": data.message_text,
 				}),
-				Color.PURPLE, Color.WHITE
+				_get_msg_param_color(data.source.tags["msg-param-color"]), Color.WHITE
 			).setup_with_user_notice(data)
-		"raid":
-			if not silent:
-				raid_player.play_random()
-			chat_log.add_notice(
-				"⚑", "[wave]{raider} +{viewers}👁[/wave]".format({
-					"raider": data.sender.name,
-					"viewers": data.event.viewer_count,
-				}),
-				Color.PURPLE, Color.WHITE
-			).setup_with_user_notice(data)
-		"sub_gift":
-			if not silent:
-				sub_player.play_random()
-			chat_log.add_notice(
-				"📦", "[wave]{name} {type} {months}mo[/wave]".format({
-					"name": data.sender.name,
-					"type": _get_sub_plan(data.event.sub_plan),
-					"months": data.event.cumulative_months,
-				}),
-				Color.PURPLE, Color.WHITE
-			).setup_with_user_notice(data)
-		"sub_mystery_gift":
-			chat_log.add_notice(
-				"🚚", "[wave]{name} +{count}📦 {type}[/wave]".format({
-					"name": data.sender.name,
-					"count": data.event.mass_gift_count,
-					"type": _get_sub_plan(data.event.sub_plan),
-				}),
-				Color.PURPLE, Color.WHITE
-			).setup_with_user_notice(data)
-		"anon_sub_mystery_gift":
-			chat_log.add_notice(
-				"🚚", "[wave]{name} +{count}📦 {type}[/wave]".format({
-					"name": data.sender.name,
-					"count": data.event.mass_gift_count,
-					"type": _get_sub_plan(data.event.sub_plan),
-				}),
-				Color.PURPLE, Color.WHITE
-			).setup_with_user_notice(data)
-		"bits_badge_tier_prefab":
-			chat_log.add_notice(
-				"⬙", "[wave]{name} {threshold}![/wave]".format({
-					"name": data.sender.name,
-					"threshold": data.event.threshold,
-				}),
-				Color.PURPLE, Color.WHITE
-			).setup_with_user_notice(data)
-		"unknown":
-			if data.source.tags.has("msg-id") and \
-					data.source.tags["msg-id"] == "announcement":
-				if not silent:
-					notif_player.play() # TODO: Announcement sound
-					queue_emotes(data)
-				chat_log.add_notice(
-					"📣", "{name}: {message}".format({
-						"name": data.sender.name,
-						"message": data.message_text,
-					}),
-					_get_msg_param_color(data.source.tags["msg-param-color"]), Color.WHITE
-				).setup_with_user_notice(data)
-		_:
+		else:
 			# Treat unknown events like messages
 			if data.has("message_text") and \
 					data["message_text"] != null and \
 					data["message_text"] != "":
 				if not silent:
 					notif_player.play()
-					queue_emotes(data)
-				chat_log.add_message(data, cache).setup_with_user_notice(data)
+					queue_emotes(data.emotes)
+				chat_log.add_user_notice(data, cache)
 
 #endregion
 
@@ -433,15 +434,12 @@ func spawn_bits(bits: int) -> void:
 
 var emotes_to_spawn: Dictionary = {}
 
-func queue_emotes(data: Dictionary) -> void:
-	if not data.has("emotes"):
-		return
-
-	for emote in data["emotes"]:
-		if emotes_to_spawn.has(emote["id"]):
-			emotes_to_spawn[emote["id"]] += 1
+func queue_emotes(emotes: Array[WitchEmote]) -> void:
+	for emote in emotes:
+		if emotes_to_spawn.has(emote.id):
+			emotes_to_spawn[emote.id] += 1
 		else:
-			emotes_to_spawn[emote["id"]] = 1
+			emotes_to_spawn[emote.id] = 1
 
 func spawn_emotes(cache: ImageCache) -> void:
 	var to_remove = []

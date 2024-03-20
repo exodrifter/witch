@@ -12,19 +12,19 @@ var sender_id: String = ""
 var sender_login: String = ""
 
 ## Sets up the entry metadata using a privmsg.
-func setup_with_privmsg(data: Dictionary) -> void:
-	channel_login = data["channel_login"]
-	message_id = data["message_id"]
-	sender_id = data["sender"]["id"]
-	sender_login = data["sender"]["login"]
+func setup_with_privmsg(data: WitchPrivmsgMessage) -> void:
+	channel_login = data.channel_login
+	message_id = data.message_id
+	sender_id = data.sender.id
+	sender_login = data.sender.login
 	name = message_id
 
 ## Sets up the entry metadata using a user notice.
-func setup_with_user_notice(data: Dictionary) -> void:
-	channel_login = data["channel_login"]
-	message_id = data["message_id"]
-	sender_id = data["sender"]["id"]
-	sender_login = data["sender"]["login"]
+func setup_with_user_notice(data: WitchUserNoticeMessage) -> void:
+	channel_login = data.channel_login
+	message_id = data.message_id
+	sender_id = data.sender.id
+	sender_login = data.sender.login
 	name = message_id
 
 func _process(_delta) -> void:

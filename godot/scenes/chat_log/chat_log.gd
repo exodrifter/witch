@@ -25,11 +25,15 @@ func _add_entry(prefab: PackedScene) -> Node:
 
 	return entry
 
-## Adds a message to the chat log.
-func add_message(data: Dictionary, cache: ImageCache) -> Entry:
+## Adds a private message to the chat log.
+func add_privmsg(data: WitchPrivmsgMessage, cache: ImageCache) -> Entry:
 	var message: Message = _add_entry(message_prefab)
-	message.data = data
-	message.setup(cache)
+	message.setup_privmsg(data, cache)
+	return message
+
+func add_user_notice(data: WitchUserNoticeMessage, cache: ImageCache) -> Entry:
+	var message: Message = _add_entry(message_prefab)
+	message.setup_user_notice(data, cache)
 	return message
 
 ## Adds a notice to the chat log.
