@@ -254,7 +254,7 @@ func process_privmsg(data: WitchPrivmsgMessage, cache: ImageCache, silent: bool)
 				crash_player.play()
 
 		"!ns":
-			var url = "https://exodrifter.itch.io/lost-contact"
+			var url = "https://store.steampowered.com/app/2840590/no_signal/"
 			if not silent:
 				notif_player.play()
 				irc.say(channel, url)
