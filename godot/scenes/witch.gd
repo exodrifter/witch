@@ -265,6 +265,12 @@ func process_privmsg(data: WitchPrivmsgMessage, cache: ImageCache, silent: bool)
 				notif_player.play()
 				irc.say(channel, url)
 			chat_log.add_notice("📣", url, Color.YELLOW, Color.BLACK)
+		"!tsuki":
+			var url = "https://forum.tsuki.games"
+			if not silent:
+				notif_player.play()
+				irc.say(channel, url)
+			chat_log.add_notice("📣", url, Color.YELLOW, Color.BLACK)
 
 		"!discord":
 			var url = "https://discord.com/invite/arqFQVt"
