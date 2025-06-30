@@ -23,6 +23,7 @@ script = ExtResource("1_t0esd")
 
 [node name="Blur" type="ColorRect" parent="."]
 unique_name_in_owner = true
+visible = false
 show_behind_parent = true
 material = SubResource("ShaderMaterial_vwqh2")
 layout_mode = 2
