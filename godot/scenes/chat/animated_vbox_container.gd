@@ -6,13 +6,6 @@ var positions: Dictionary[Control, AutoVector2]
 func _notification(what: int) -> void:
 	match what:
 		NOTIFICATION_SORT_CHILDREN:
-			# Prune cached positions we don't need anymore
-			var cached_keys := positions.keys()
-			for c in get_children():
-				cached_keys.erase(c)
-			for key in cached_keys:
-				positions.erase(key)
-
 			# Copy the positions that the VBoxContainer determined
 			for c in get_children():
 				if c is not Control or c.visible == false:
@@ -29,6 +22,12 @@ func _notification(what: int) -> void:
 
 				# Set the controls back to the old position
 				control.position = positions[control].current
+
+func _ready() -> void:
+	child_exiting_tree.connect(
+		func(node: Node) -> void:
+			positions.erase(node)
+	)
 
 func _process(delta: float) -> void:
 	# Animated the position of the children

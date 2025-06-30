@@ -13,6 +13,7 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 script = ExtResource("1_1uvf6")
+cull_at = 0.75
 chat_message = ExtResource("2_r67cr")
 
 [node name="Twitch" type="TwitchEventNode" parent="."]

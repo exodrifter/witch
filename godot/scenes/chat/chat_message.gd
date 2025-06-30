@@ -4,6 +4,7 @@ extends Control
 @onready var label: Label = %Name
 @onready var message: ChatMessageBody = %MessageBody
 
+var destroy_requested: bool
 var auto_alpha: AutoFloat
 
 var image_cache: ImageCache:
@@ -26,8 +27,15 @@ func _enter_tree() -> void:
 func _process(delta: float) -> void:
 	modulate.a = auto_alpha.update(delta)
 
+	if destroy_requested and is_zero_approx(modulate.a):
+		queue_free()
+
 func _draw() -> void:
 	label.text = message_data.chatter.name
 
 	message.image_cache = image_cache
 	message.message = message_data.message
+
+func _request_destroy() -> void:
+	destroy_requested = true
+	auto_alpha.desired = 0
