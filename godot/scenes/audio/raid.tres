@@ -1,9 +1,0 @@
-[gd_resource type="Resource" script_class="SoundBank" load_steps=4 format=3 uid="uid://dqlodn3im2imi"]
-
-[ext_resource type="Script" uid="uid://dtlhmgp4k6m6f" path="res://code/sound_bank.gd" id="1_s4yb5"]
-[ext_resource type="AudioStream" uid="uid://b4etsvy73l1ns" path="res://scenes/audio/raid/raid-exo.wav" id="2_vcqr6"]
-[ext_resource type="AudioStream" uid="uid://dbg25dja5uqnb" path="res://scenes/audio/raid/raid-choto.wav" id="3_s4qi2"]
-
-[resource]
-script = ExtResource("1_s4yb5")
-sounds = Array[AudioStream]([ExtResource("2_vcqr6"), ExtResource("3_s4qi2")])
