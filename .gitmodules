@@ -1,0 +1,3 @@
+[submodule "rs-twitch-event-sub"]
+	path = rs-twitch-event-sub
+	url = git@github.com:Owlkaline/TwitchEventSub-rs.git
