@@ -1,6 +1,6 @@
 [gd_scene load_steps=4 format=3 uid="uid://cb8l6yk61o84v"]
 
-[ext_resource type="Script" path="res://scenes/chat_log/message.gd" id="1_dwojp"]
+[ext_resource type="Script" uid="uid://ctlybtcw46v24" path="res://scenes/chat_log/message.gd" id="1_dwojp"]
 [ext_resource type="Theme" uid="uid://omkl8qh717w8" path="res://scenes/theme.tres" id="2_1enfj"]
 
 [sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_a1ile"]

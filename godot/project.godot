@@ -14,7 +14,7 @@ config/name="exowitch"
 run/main_scene="res://scenes/witch.tscn"
 config/use_custom_user_dir=true
 config/custom_user_dir_name="exodrifter/witch"
-config/features=PackedStringArray("4.2", "Forward Plus")
+config/features=PackedStringArray("4.4", "Forward Plus")
 config/icon="res://icon.svg"
 
 [display]

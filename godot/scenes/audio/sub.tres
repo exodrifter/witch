@@ -1,6 +1,6 @@
 [gd_resource type="Resource" script_class="SoundBank" load_steps=10 format=3 uid="uid://dvxm5r8725qsl"]
 
-[ext_resource type="Script" path="res://code/sound_bank.gd" id="1_k27es"]
+[ext_resource type="Script" uid="uid://dtlhmgp4k6m6f" path="res://code/sound_bank.gd" id="1_k27es"]
 [ext_resource type="AudioStream" uid="uid://80ud3aw8hctx" path="res://scenes/audio/sub/sub-1.wav" id="2_to4qg"]
 [ext_resource type="AudioStream" uid="uid://bd3jnilj3xapm" path="res://scenes/audio/sub/sub-2.wav" id="3_pbvmg"]
 [ext_resource type="AudioStream" uid="uid://bpqurlswtuxpn" path="res://scenes/audio/sub/sub-3.wav" id="4_0x7wq"]
