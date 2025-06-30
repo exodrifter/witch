@@ -1,23 +1,36 @@
-[gd_scene load_steps=4 format=3 uid="uid://ck25xcihd5kdq"]
+[gd_scene load_steps=6 format=3 uid="uid://ck25xcihd5kdq"]
 
 [ext_resource type="Script" uid="uid://cnae51gcrenof" path="res://scenes/chat/chat_message.gd" id="1_t0esd"]
+[ext_resource type="Shader" uid="uid://c7ri6enbcvvri" path="res://scenes/chat/blur.gdshader" id="1_vwqh2"]
 [ext_resource type="Script" uid="uid://cxffscoxlvfa0" path="res://scenes/chat/chat_message_body.gd" id="2_yup52"]
 
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_yup52"]
-bg_color = Color(0, 0, 0, 0.784314)
-corner_radius_top_left = 10
-corner_radius_top_right = 10
-corner_radius_bottom_right = 10
-corner_radius_bottom_left = 10
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_yup52"]
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_vwqh2"]
+resource_local_to_scene = true
+shader = ExtResource("1_vwqh2")
+shader_parameter/lod = 3.0
 
 [node name="Message" type="PanelContainer"]
+clip_children = 2
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-theme_override_styles/panel = SubResource("StyleBoxFlat_yup52")
+theme_override_styles/panel = SubResource("StyleBoxEmpty_yup52")
 script = ExtResource("1_t0esd")
+
+[node name="Blur" type="ColorRect" parent="."]
+unique_name_in_owner = true
+show_behind_parent = true
+material = SubResource("ShaderMaterial_vwqh2")
+layout_mode = 2
+
+[node name="ColorRect" type="ColorRect" parent="."]
+show_behind_parent = true
+layout_mode = 2
+color = Color(0, 0, 0, 0.392157)
 
 [node name="MarginContainer" type="MarginContainer" parent="."]
 layout_mode = 2
