@@ -6,6 +6,9 @@
 
 [node name="Main" type="Node"]
 
+[node name="AudioListener3D" type="AudioListener3D" parent="."]
+current = true
+
 [node name="Overlay" type="MarginContainer" parent="."]
 anchors_preset = 15
 anchor_right = 1.0

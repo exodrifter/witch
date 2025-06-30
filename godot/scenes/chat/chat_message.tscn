@@ -1,9 +1,10 @@
-[gd_scene load_steps=7 format=3 uid="uid://ck25xcihd5kdq"]
+[gd_scene load_steps=8 format=3 uid="uid://ck25xcihd5kdq"]
 
 [ext_resource type="Script" uid="uid://cnae51gcrenof" path="res://scenes/chat/chat_message.gd" id="1_t0esd"]
 [ext_resource type="Shader" uid="uid://c7ri6enbcvvri" path="res://scenes/chat/blur.gdshader" id="1_vwqh2"]
 [ext_resource type="PackedScene" uid="uid://wrj54dhtcc5t" path="res://scenes/blur/blur.tscn" id="2_sia1j"]
 [ext_resource type="Script" uid="uid://cxffscoxlvfa0" path="res://scenes/chat/chat_message_body.gd" id="2_yup52"]
+[ext_resource type="AudioStream" uid="uid://bvggdrwis2krg" path="res://scenes/audio/notif.wav" id="5_3nqec"]
 
 [sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_yup52"]
 
@@ -48,3 +49,8 @@ layout_mode = 2
 text = "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Curabitur rutrum dapibus tellus, non feugiat nisl tristique non."
 fit_content = true
 script = ExtResource("2_yup52")
+
+[node name="AudioStreamPlayer" type="AudioStreamPlayer" parent="."]
+stream = ExtResource("5_3nqec")
+volume_db = -15.0
+autoplay = true
