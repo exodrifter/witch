@@ -1,0 +1,23 @@
+[gd_scene load_steps=3 format=3 uid="uid://wrj54dhtcc5t"]
+
+[ext_resource type="Shader" uid="uid://c7ri6enbcvvri" path="res://scenes/chat/blur.gdshader" id="1_x025m"]
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_vwqh2"]
+resource_local_to_scene = true
+shader = ExtResource("1_x025m")
+shader_parameter/lod = 3.0
+
+[node name="Blur" type="ColorRect"]
+self_modulate = Color(1, 1, 1, 0)
+show_behind_parent = true
+material = SubResource("ShaderMaterial_vwqh2")
+
+[node name="ColorRect" type="ColorRect" parent="."]
+show_behind_parent = true
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0, 0, 0, 0.784314)
