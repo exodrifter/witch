@@ -1,10 +1,12 @@
-[gd_scene load_steps=4 format=3 uid="uid://vqcyti7i6ny6"]
+[gd_scene load_steps=5 format=3 uid="uid://vqcyti7i6ny6"]
 
 [ext_resource type="Script" uid="uid://dnhqtspsdi8l2" path="res://scenes/chat/chat.gd" id="1_1uvf6"]
 [ext_resource type="PackedScene" uid="uid://ck25xcihd5kdq" path="res://scenes/chat/chat_message.tscn" id="2_r67cr"]
 [ext_resource type="Script" uid="uid://c533nlyd7qvnu" path="res://scenes/chat/image_cache.gd" id="3_xe7gi"]
+[ext_resource type="Script" uid="uid://db703bl2lqrkt" path="res://scenes/chat/animated_vbox_container.gd" id="4_6xy15"]
 
-[node name="Chat" type="VBoxContainer"]
+[node name="Chat" type="Control"]
+layout_mode = 3
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
@@ -20,5 +22,11 @@ unique_name_in_owner = true
 unique_name_in_owner = true
 script = ExtResource("3_xe7gi")
 twitch = NodePath("../Twitch")
+
+[node name="Log" type="VBoxContainer" parent="."]
+unique_name_in_owner = true
+layout_mode = 0
+offset_right = 1280.0
+script = ExtResource("4_6xy15")
 
 [connection signal="chat_message" from="Twitch" to="." method="_on_twitch_chat_message"]

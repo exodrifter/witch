@@ -4,6 +4,8 @@ extends Control
 @onready var label: Label = %Name
 @onready var message: ChatMessageBody = %MessageBody
 
+var auto_alpha: AutoFloat
+
 var image_cache: ImageCache:
 	set(value):
 		if image_cache != value:
@@ -15,6 +17,14 @@ var message_data: GMessageData:
 		if message_data != value:
 			message_data = value
 			queue_redraw()
+
+func _enter_tree() -> void:
+	auto_alpha = AutoFloat.new(0, CriticalDampingMode.new(10))
+	auto_alpha.desired = 1
+	modulate.a = 0
+
+func _process(delta: float) -> void:
+	modulate.a = auto_alpha.update(delta)
 
 func _draw() -> void:
 	label.text = message_data.chatter.name
