@@ -31,10 +31,11 @@ func _process(delta: float) -> void:
 		queue_free()
 
 func _draw() -> void:
-	label.text = message_data.chatter.name
-
 	message.image_cache = image_cache
-	message.message = message_data.message
+
+	if is_instance_valid(message_data):
+		label.text = message_data.chatter.name
+		message.message = message_data.message
 
 func _request_destroy() -> void:
 	destroy_requested = true

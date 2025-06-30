@@ -1,8 +1,0 @@
-[gd_scene load_steps=2 format=3 uid="uid://bdfxileb8jka8"]
-
-[ext_resource type="Script" uid="uid://cxffscoxlvfa0" path="res://scenes/chat/chat_message_body.gd" id="1_8lxob"]
-
-[node name="MessageBody" type="RichTextLabel"]
-offset_right = 1.0
-fit_content = true
-script = ExtResource("1_8lxob")

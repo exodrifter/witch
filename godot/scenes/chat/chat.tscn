@@ -13,7 +13,6 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 script = ExtResource("1_1uvf6")
-cull_at = 0.75
 chat_message = ExtResource("2_r67cr")
 
 [node name="Twitch" type="TwitchEventNode" parent="."]
@@ -26,8 +25,11 @@ twitch = NodePath("../Twitch")
 
 [node name="Log" type="VBoxContainer" parent="."]
 unique_name_in_owner = true
-layout_mode = 0
-offset_right = 1280.0
+layout_mode = 1
+anchors_preset = 10
+anchor_right = 1.0
+grow_horizontal = 2
+theme_override_constants/separation = 32
 script = ExtResource("4_6xy15")
 
 [connection signal="chat_message" from="Twitch" to="." method="_on_twitch_chat_message"]
