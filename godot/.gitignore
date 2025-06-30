@@ -1,1 +1,5 @@
 /.godot/
+/.example.env
+/.refresh_token.env
+/.user_token.env
+/twitch_events.log

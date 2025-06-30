@@ -11,7 +11,7 @@ config_version=5
 [application]
 
 config/name="exowitch"
-run/main_scene="res://scenes/witch.tscn"
+run/main_scene="uid://vqcyti7i6ny6"
 config/use_custom_user_dir=true
 config/custom_user_dir_name="exodrifter/witch"
 config/features=PackedStringArray("4.4", "Forward Plus")
